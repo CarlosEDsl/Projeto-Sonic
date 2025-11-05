@@ -1,7 +1,6 @@
 package com.sonic.team.sonicteam.model;
 
-import jakarta.persistence.Entity;
-import jakarta.persistence.Id;
+import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -10,15 +9,34 @@ import lombok.NoArgsConstructor;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
+@Table(
+        name = "livro",
+        uniqueConstraints = {
+                @UniqueConstraint(columnNames = {"autor", "edicao", "editora"})
+        }
+)
+
 public class Livro {
 
     @Id
     private String isbn;
 
+    @Column(nullable = false)
     private String titulo;
+
+    @Column(nullable = false)
     private String autor;
+
+    @Column(nullable = false)
     private String editora;
+
+    @Column(nullable = false)
     private String edicao;
-    private Categoria categoria;
-    private boolean disponivel;
+
+    @ManyToOne(optional = false)
+    @JoinColumn(name = "categoria_id")
+    private CategoriaLivro categoria;
+
+    @Column(nullable = false)
+    private boolean disponivel = true;
 }
