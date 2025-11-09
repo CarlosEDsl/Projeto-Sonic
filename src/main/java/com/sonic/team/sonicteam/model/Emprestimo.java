@@ -14,6 +14,12 @@ import java.time.LocalDateTime;
 @Table(name = "emprestimo")
 public class Emprestimo {
 
+    public Emprestimo(Usuario usuario, Estoque estoque, LocalDateTime dataDevolucao) {
+        this.usuario = usuario;
+        this.estoque = estoque;
+        this.dataDevolucao = dataDevolucao;
+    }
+
     @Id
     private Long id;
 
