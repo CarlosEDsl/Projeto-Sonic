@@ -1,4 +1,4 @@
-package com.sonic.team.sonicteam.service;
+package com.sonic.team.sonicteam.service.livro;
 
 import com.sonic.team.sonicteam.model.Livro;
 import com.sonic.team.sonicteam.repository.LivroRepository;
