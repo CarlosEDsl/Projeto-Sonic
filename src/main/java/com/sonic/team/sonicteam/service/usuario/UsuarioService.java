@@ -3,6 +3,7 @@ package com.sonic.team.sonicteam.service.usuario;
 import com.sonic.team.sonicteam.exception.ConflitoNegocioException;
 import com.sonic.team.sonicteam.exception.DadoInvalidoException;
 import com.sonic.team.sonicteam.model.*;
+import com.sonic.team.sonicteam.model.DTO.Usuario.CategoriaUsuario;
 import com.sonic.team.sonicteam.model.DTO.Usuario.UsuarioRequestDTO;
 import com.sonic.team.sonicteam.model.DTO.Usuario.UsuarioResponseDTO;
 import com.sonic.team.sonicteam.model.usuario.StatusUsuario;

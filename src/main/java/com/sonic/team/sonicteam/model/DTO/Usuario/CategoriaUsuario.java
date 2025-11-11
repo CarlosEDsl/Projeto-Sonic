@@ -1,4 +1,4 @@
-package com.sonic.team.sonicteam.model;
+package com.sonic.team.sonicteam.model.DTO.Usuario;
 
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;

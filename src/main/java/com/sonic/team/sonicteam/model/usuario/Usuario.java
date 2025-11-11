@@ -1,6 +1,6 @@
 package com.sonic.team.sonicteam.model.usuario;
 
-import com.sonic.team.sonicteam.model.CategoriaUsuario;
+import com.sonic.team.sonicteam.model.DTO.Usuario.CategoriaUsuario;
 import com.sonic.team.sonicteam.model.Curso;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
