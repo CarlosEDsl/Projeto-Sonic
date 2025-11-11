@@ -1,13 +1,14 @@
 package com.sonic.team.sonicteam.service.livro;
 
+import com.sonic.team.sonicteam.model.DTO.Livro.LivroRequestDTO;
 import com.sonic.team.sonicteam.model.Livro;
 
 import java.util.List;
 
 public interface ILivroService {
    Livro criarLivro(LivroRequestDTO livroRequestDTO);
-   Livro buscarLivroPorId(Long id);
+   Livro buscarLivroPorISBN(String id);
    List<Livro> listarLivros();
-   Livro atualizarLivro(Long id,Livro dadosAtualizados);
-   boolean excluirLivro(Long id);
+   Livro atualizarLivro(String id,Livro dadosAtualizados);
+   boolean excluirLivro(String id);
 }
