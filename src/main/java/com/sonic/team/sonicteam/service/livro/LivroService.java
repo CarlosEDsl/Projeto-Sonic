@@ -83,10 +83,17 @@ public class LivroService implements ILivroService {
             throw new IllegalArgumentException("ID inválido.");
         }
 
-        if(livroRepository.existsById(id)) {
+        Livro livroExiste = livroRepository.findById(id).orElse(null);
+
+        if(livroExiste == null) {
+            throw new IllegalArgumentException("Livro não encontrado.");
+        }
+        if(livroExiste.isDisponivel() == false) {
+            throw new IllegalArgumentException("Livro não pode ser excluído pois está emprestado.");
+        } else {
             livroRepository.deleteById(id);
             return true;
         }
-        return false;
+
     }
 }
