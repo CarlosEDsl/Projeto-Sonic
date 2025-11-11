@@ -7,6 +7,8 @@ import lombok.NoArgsConstructor;
 
 import java.time.LocalDateTime;
 
+import com.sonic.team.sonicteam.model.usuario.Usuario;
+
 @Entity
 @Data
 @NoArgsConstructor
