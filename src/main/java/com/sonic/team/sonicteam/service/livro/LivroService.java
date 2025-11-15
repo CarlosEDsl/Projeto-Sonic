@@ -1,53 +1,58 @@
 package com.sonic.team.sonicteam.service.livro;
 
-import com.sonic.team.sonicteam.model.CategoriaLivro;
 import com.sonic.team.sonicteam.model.DTO.Livro.LivroRequestDTO;
+import com.sonic.team.sonicteam.model.DTO.Livro.LivroResponseDTO;
 import com.sonic.team.sonicteam.model.Livro;
-import com.sonic.team.sonicteam.repository.CategoriaRepository;
+import com.sonic.team.sonicteam.repository.CategoriaLivroRepository;
 import com.sonic.team.sonicteam.repository.LivroRepository;
-import com.sonic.team.sonicteam.validator.LivroValidator;
+import com.sonic.team.sonicteam.util.LivroMapper;
+import com.sonic.team.sonicteam.validation.LivroValidator;
+import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
+@Service
 public class LivroService implements ILivroService {
     private LivroRepository livroRepository;
-    private CategoriaRepository categoriaRepository;
+    private CategoriaLivroRepository categoriaRepository;
+    private LivroMapper livroMapper;
     private LivroValidator livroValidator;
 
-    public LivroService(LivroRepository livroRepository, LivroValidator livroValidator) {
+    public LivroService(LivroRepository livroRepository, LivroValidator livroValidator, CategoriaLivroRepository categoriaRepository, LivroMapper livroMapper) {
         this.livroRepository = livroRepository;
         this.livroValidator = livroValidator;
     }
 
     @Override
     @Transactional
-    public Livro criarLivro(LivroRequestDTO dto) {
-
-        Livro livro = dtoParaEntidade(dto);
+    public LivroResponseDTO criarLivro(LivroRequestDTO dto) {
+        Livro livro = LivroMapper.toEntity(dto, categoriaRepository.findById(dto.categoriaId()).orElseThrow(() -> new IllegalArgumentException("Categoria não encontrada.")));
         livroValidator.validarCadastro(livro);
         livroRepository.save(livro);
-        return livro;
+        return LivroMapper.toResponse(livro);
     }
+
+    // TODO: O buscar deve ter filtros para buscar por título, autor, editora, categoria, etc.
 
     @Override
     @Transactional
-    public Livro buscarLivroPorISBN(String id) {
+    public LivroResponseDTO buscarLivroPorISBN(String id) {
         if(id == null || id.isBlank() || id.length() > 10 && id.length() < 13) {
             throw new IllegalArgumentException("ID inválido.");
         }
-        return livroRepository.findById(id).orElseThrow(() -> new IllegalArgumentException("Livro não encontrado."));
+        return LivroMapper.toResponse(livroRepository.findById(id).orElseThrow(() -> new IllegalArgumentException("Livro não encontrado.")));
     }
 
     @Override
     @Transactional(readOnly = true)
-    public List<Livro> listarLivros() {
-        return livroRepository.findAll();
+    public List<LivroResponseDTO> listarLivros() {
+        return livroRepository.findAll().stream().map(LivroMapper::toResponse).toList();
     }
 
     @Override
     @Transactional
-    public Livro atualizarLivro(String id, LivroRequestDTO LivroRequestDTO) {
+    public LivroResponseDTO atualizarLivro(String id, LivroRequestDTO LivroRequestDTO) {
         if(id == null || id.isBlank()) {
             throw new IllegalArgumentException("ID inválido.");
         }
@@ -58,12 +63,13 @@ public class LivroService implements ILivroService {
             throw new IllegalArgumentException("Livro não encontrado.");
         }
 
-        Livro livroAtualizado = dtoParaEntidade(LivroRequestDTO);
+        Livro livroAtualizado = LivroMapper.toEntity(LivroRequestDTO, categoriaRepository.findById(LivroRequestDTO.categoriaId()).orElseThrow(() -> new IllegalArgumentException("Categoria não encontrada.")));
+
         livroAtualizado.setIsbn(id);
-
         livroValidator.validarAtualizacao(livroAtualizado);
+        livroRepository.save(livroAtualizado);
 
-        return livroRepository.save(livroAtualizado);
+        return LivroMapper.toResponse(livroAtualizado);
 
     }
 
@@ -80,18 +86,6 @@ public class LivroService implements ILivroService {
         livroValidator.validarRemocao(livro);
         livroRepository.delete(livro);
     }
-
-    private Livro dtoParaEntidade(LivroRequestDTO dto) {
-        CategoriaLivro categoria = categoriaRepository.findById(dto.categoriaId())
-                .orElseThrow(() -> new IllegalArgumentException("Categoria não encontrada"));
-
-        Livro livro = new Livro();
-        livro.setIsbn(dto.isbn());
-        livro.setTitulo(dto.titulo());
-        livro.setAutor(dto.autor());
-        livro.setEditora(dto.editora());
-        livro.setEdicao(dto.edicao());
-        livro.setCategoria(categoria);
-        return livro;
-    }
 }
+
+
