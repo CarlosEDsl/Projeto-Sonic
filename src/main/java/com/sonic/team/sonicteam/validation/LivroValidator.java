@@ -1,18 +1,18 @@
-package com.sonic.team.sonicteam.validator;
+package com.sonic.team.sonicteam.validation;
 
 import org.springframework.stereotype.Component;
 
 import com.sonic.team.sonicteam.model.Livro;
 import com.sonic.team.sonicteam.repository.LivroRepository;
-import com.sonic.team.sonicteam.repository.CategoriaRepository;
+import com.sonic.team.sonicteam.repository.CategoriaLivroRepository;
 
 @Component
 public class LivroValidator {
 
     private final LivroRepository livroRepository;
-    private final CategoriaRepository categoriaRepository;
+    private final CategoriaLivroRepository categoriaRepository;
 
-    public LivroValidator(LivroRepository livroRepository, CategoriaRepository categoriaRepository) {
+    public LivroValidator(LivroRepository livroRepository, CategoriaLivroRepository categoriaRepository) {
         this.livroRepository = livroRepository;
         this.categoriaRepository = categoriaRepository;
     }
