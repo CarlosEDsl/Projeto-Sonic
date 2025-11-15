@@ -18,7 +18,7 @@ public class LivroService implements ILivroService {
     private CategoriaLivroRepository categoriaRepository;
     private LivroValidator livroValidator;
 
-    public LivroService(LivroRepository livroRepository, LivroValidator livroValidator, CategoriaLivroRepository categoriaRepository,) {
+    public LivroService(LivroRepository livroRepository, LivroValidator livroValidator, CategoriaLivroRepository categoriaRepository) {
         this.livroRepository = livroRepository;
         this.livroValidator = livroValidator;
         this.categoriaRepository = categoriaRepository;
