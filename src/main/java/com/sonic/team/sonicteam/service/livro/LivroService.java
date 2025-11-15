@@ -3,82 +3,51 @@ package com.sonic.team.sonicteam.service.livro;
 import com.sonic.team.sonicteam.model.CategoriaLivro;
 import com.sonic.team.sonicteam.model.DTO.Livro.LivroRequestDTO;
 import com.sonic.team.sonicteam.model.Livro;
+import com.sonic.team.sonicteam.repository.CategoriaRepository;
 import com.sonic.team.sonicteam.repository.LivroRepository;
+import com.sonic.team.sonicteam.validator.LivroValidator;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
 public class LivroService implements ILivroService {
-    private final LivroRepository livroRepository;
+    private LivroRepository livroRepository;
+    private CategoriaRepository categoriaRepository;
+    private LivroValidator livroValidator;
 
-    public LivroService(LivroRepository livroRepository) {
+    public LivroService(LivroRepository livroRepository, LivroValidator livroValidator) {
         this.livroRepository = livroRepository;
+        this.livroValidator = livroValidator;
     }
 
     @Override
-    public Livro criarLivro(LivroRequestDTO livroRequestDTO) {
-        if(livroRequestDTO.autor().isEmpty() || livroRequestDTO.titulo().isEmpty() || livroRequestDTO.categoriaNome().isEmpty() || livroRequestDTO.edicao().isEmpty() || livroRequestDTO.editora().isEmpty() || livroRequestDTO.isbn().isEmpty()) {
-            throw new IllegalArgumentException("Todos os campos são obrigatórios.");
-        }
+    @Transactional
+    public Livro criarLivro(LivroRequestDTO dto) {
 
-
-        Livro livro = new Livro(
-                livroRequestDTO.isbn(),
-                livroRequestDTO.titulo(),
-                livroRequestDTO.autor(),
-                livroRequestDTO.editora(),
-                livroRequestDTO.edicao(),
-               new CategoriaLivro(livroRequestDTO.categoriaNome()),
-                true);
-
+        Livro livro = dtoParaEntidade(dto);
+        livroValidator.validarCadastro(livro);
         livroRepository.save(livro);
-
         return livro;
     }
 
     @Override
+    @Transactional
     public Livro buscarLivroPorISBN(String id) {
-        if(id == null || id.isBlank()) {
+        if(id == null || id.isBlank() || id.length() > 10 && id.length() < 13) {
             throw new IllegalArgumentException("ID inválido.");
         }
-        Livro livro = livroRepository.findById(id).orElse(null);
-        return livro;
+        return livroRepository.findById(id).orElseThrow(() -> new IllegalArgumentException("Livro não encontrado."));
     }
 
     @Override
+    @Transactional(readOnly = true)
     public List<Livro> listarLivros() {
-        List<Livro> livros = livroRepository.findAll();
-        if(!livros.isEmpty()) {
-            return livros;
-        }
-        throw new IllegalArgumentException("Nenhum livro encontrado.");
+        return livroRepository.findAll();
     }
 
     @Override
-    public Livro atualizarLivro(String id, Livro dadosAtualizados) {
-        if(id == null || id.isBlank()) {
-            throw new IllegalArgumentException("ID inválido.");
-        }
-
-        Livro livroExiste = livroRepository.findById(id).orElse(null);
-
-        if(livroExiste == null) {
-            throw new IllegalArgumentException("Livro não encontrado.");
-        } else{
-            livroExiste.setTitulo(dadosAtualizados.getTitulo());
-            livroExiste.setAutor(dadosAtualizados.getAutor());
-            livroExiste.setEditora(dadosAtualizados.getEditora());
-            livroExiste.setEdicao(dadosAtualizados.getEdicao());
-            livroExiste.setCategoria(dadosAtualizados.getCategoria());
-            livroExiste.setDisponivel(dadosAtualizados.isDisponivel());
-
-            livroRepository.save(livroExiste);
-
-            return livroExiste;
-        }
-    }
-
-    @Override
-    public boolean excluirLivro(String id) {
+    @Transactional
+    public Livro atualizarLivro(String id, LivroRequestDTO LivroRequestDTO) {
         if(id == null || id.isBlank()) {
             throw new IllegalArgumentException("ID inválido.");
         }
@@ -88,12 +57,41 @@ public class LivroService implements ILivroService {
         if(livroExiste == null) {
             throw new IllegalArgumentException("Livro não encontrado.");
         }
-        if(livroExiste.isDisponivel() == false) {
-            throw new IllegalArgumentException("Livro não pode ser excluído pois está emprestado.");
-        } else {
-            livroRepository.deleteById(id);
-            return true;
+
+        Livro livroAtualizado = dtoParaEntidade(LivroRequestDTO);
+        livroAtualizado.setIsbn(id);
+
+        livroValidator.validarAtualizacao(livroAtualizado);
+
+        return livroRepository.save(livroAtualizado);
+
+    }
+
+    @Override
+    @Transactional
+    public void excluirLivro(String id) {
+
+        if (id == null || id.isBlank()) {
+            throw new IllegalArgumentException("ID inválido.");
         }
 
+        Livro livro = livroRepository.findById(id).orElseThrow(() -> new IllegalArgumentException("Livro não encontrado."));
+
+        livroValidator.validarRemocao(livro);
+        livroRepository.delete(livro);
+    }
+
+    private Livro dtoParaEntidade(LivroRequestDTO dto) {
+        CategoriaLivro categoria = categoriaRepository.findById(dto.categoriaId())
+                .orElseThrow(() -> new IllegalArgumentException("Categoria não encontrada"));
+
+        Livro livro = new Livro();
+        livro.setIsbn(dto.isbn());
+        livro.setTitulo(dto.titulo());
+        livro.setAutor(dto.autor());
+        livro.setEditora(dto.editora());
+        livro.setEdicao(dto.edicao());
+        livro.setCategoria(categoria);
+        return livro;
     }
 }
