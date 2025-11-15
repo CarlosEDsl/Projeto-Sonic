@@ -16,12 +16,12 @@ import java.util.List;
 public class LivroService implements ILivroService {
     private LivroRepository livroRepository;
     private CategoriaLivroRepository categoriaRepository;
-    private LivroMapper livroMapper;
     private LivroValidator livroValidator;
 
-    public LivroService(LivroRepository livroRepository, LivroValidator livroValidator, CategoriaLivroRepository categoriaRepository, LivroMapper livroMapper) {
+    public LivroService(LivroRepository livroRepository, LivroValidator livroValidator, CategoriaLivroRepository categoriaRepository,) {
         this.livroRepository = livroRepository;
         this.livroValidator = livroValidator;
+        this.categoriaRepository = categoriaRepository;
     }
 
     @Override
