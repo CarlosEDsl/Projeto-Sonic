@@ -9,6 +9,6 @@ public interface ILivroService {
    Livro criarLivro(LivroRequestDTO livroRequestDTO);
    Livro buscarLivroPorISBN(String id);
    List<Livro> listarLivros();
-   Livro atualizarLivro(String id,Livro dadosAtualizados);
-   boolean excluirLivro(String id);
+   Livro atualizarLivro(String id,LivroRequestDTO livroRequestDTO);
+   void excluirLivro(String id);
 }
