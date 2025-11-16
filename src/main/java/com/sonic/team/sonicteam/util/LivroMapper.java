@@ -1,14 +1,13 @@
 package com.sonic.team.sonicteam.util;
 
-import com.sonic.team.sonicteam.model.CategoriaLivro;
 import com.sonic.team.sonicteam.model.DTO.Livro.LivroRequestDTO;
 import com.sonic.team.sonicteam.model.DTO.Livro.LivroResponseDTO;
 import com.sonic.team.sonicteam.model.Livro;
-import com.sonic.team.sonicteam.repository.CategoriaLivroRepository;
+import com.sonic.team.sonicteam.model.catalogos.CategoriaLivro;
 
 public class LivroMapper {
 
-        public static Livro toEntity(LivroRequestDTO dto, CategoriaLivro categoria) {
+        public static Livro toEntity(LivroRequestDTO dto) {
 
             Livro livro = new Livro();
             livro.setIsbn(dto.isbn());
@@ -16,7 +15,7 @@ public class LivroMapper {
             livro.setAutor(dto.autor());
             livro.setEditora(dto.editora());
             livro.setEdicao(dto.edicao());
-            livro.setCategoria(categoria);
+            livro.setCategoriaLivro(dto.categoriaLivro());
 
             return livro;
         }
@@ -28,7 +27,7 @@ public class LivroMapper {
                 livro.getAutor(),
                 livro.getEditora(),
                 livro.getEdicao(),
-                livro.getCategoria().getNome()
+                livro.getCategoriaLivro().name()
         );
     }
     }
