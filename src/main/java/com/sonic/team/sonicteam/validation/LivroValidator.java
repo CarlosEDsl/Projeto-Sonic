@@ -1,11 +1,14 @@
 package com.sonic.team.sonicteam.validation;
 
 import com.sonic.team.sonicteam.exception.RecursoJaExisteException;
+import com.sonic.team.sonicteam.exception.RecursoNaoEncontradoException;
 import com.sonic.team.sonicteam.model.catalogos.CategoriaLivro;
 import org.springframework.stereotype.Component;
 
 import com.sonic.team.sonicteam.model.Livro;
 import com.sonic.team.sonicteam.repository.LivroRepository;
+
+import java.util.Arrays;
 
 @Component
 public class LivroValidator {
@@ -17,6 +20,7 @@ public class LivroValidator {
     }
 
     public void validarCadastro(Livro livro) {
+        validarCategoriaValida(livro.getCategoriaLivro());
         validarIsbnNaoCadastrado(livro);
         validarUnicidadeCombinacao(livro);
     }
@@ -27,23 +31,17 @@ public class LivroValidator {
 
     public void validarRemocao(Livro livro) {
         if (!livro.isDisponivel()) {
-            throw new IllegalStateException(
+            throw new RecursoNaoEncontradoException(
                     "O livro não pode ser removido pois está emprestado."
             );
         }
     }
 
-    public CategoriaLivro converterCategoria(String categoria) {
-        try {
-            return CategoriaLivro.valueOf(categoria.trim().toUpperCase());
-        } catch (Exception e) {
-            throw new IllegalArgumentException(
-                    "Categoria informada não existe: " + categoria
-            );
+    private void validarCategoriaValida(CategoriaLivro categoria) {
+        if (categoria == null || !Arrays.toString(CategoriaLivro.values()).contains(categoria.toString())) {
+            throw new RecursoNaoEncontradoException("Categoria inválida.");
         }
     }
-
-
 
     private void validarIsbnNaoCadastrado(Livro livro) {
         if (livroRepository.existsById(livro.getIsbn())) {

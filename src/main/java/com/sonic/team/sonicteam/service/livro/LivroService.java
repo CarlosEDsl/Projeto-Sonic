@@ -1,5 +1,6 @@
 package com.sonic.team.sonicteam.service.livro;
 
+import com.sonic.team.sonicteam.exception.RecursoJaExisteException;
 import com.sonic.team.sonicteam.exception.RecursoNaoEncontradoException;
 import com.sonic.team.sonicteam.model.DTO.Livro.LivroRequestDTO;
 import com.sonic.team.sonicteam.model.DTO.Livro.LivroResponseDTO;
@@ -32,21 +33,14 @@ public class LivroService implements ILivroService {
         return LivroMapper.toResponse(livro);
     }
 
-    // TODO: O buscar deve ter filtros para buscar por título, autor, editora, categoria, etc.
-
-    @Override
-    @Transactional
-    public LivroResponseDTO buscarLivroPorISBN(String id) {
-        if(id == null || id.isBlank() || id.length() > 10 && id.length() < 13) {
-            throw new IllegalArgumentException("ID inválido.");
-        }
-        return LivroMapper.toResponse(livroRepository.findById(id).orElseThrow(() -> new RecursoNaoEncontradoException("Livro não encontrado.")));
-    }
-
     @Override
     @Transactional(readOnly = true)
-    public List<LivroResponseDTO> listarLivros() {
-        return livroRepository.findAll().stream().map(LivroMapper::toResponse).toList();
+    public List<LivroResponseDTO> listarLivros(String titulo, String autor, String editora, String edicao, String categoria) {
+        if (todosFiltrosVazios(titulo, autor, editora, edicao, categoria)) {
+            return buscarTodosLivros();
+        }
+
+        return buscarLivrosComFiltros(titulo, autor, editora, edicao, categoria);
     }
 
     @Override
@@ -83,6 +77,66 @@ public class LivroService implements ILivroService {
         livroValidator.validarRemocao(livro);
         livroRepository.delete(livro);
     }
+
+    @Override
+    @Transactional
+    public LivroResponseDTO buscarLivroPorISBN(String id) {
+        if(id == null || id.isBlank() || id.length() > 10 && id.length() < 13) {
+            throw new IllegalArgumentException("ID inválido.");
+        }
+        return LivroMapper.toResponse(livroRepository.findById(id).orElseThrow(() -> new RecursoNaoEncontradoException("Livro não encontrado.")));
+    }
+
+
+
+    private boolean todosFiltrosVazios(String titulo, String autor, String editora, String edicao, String categoria) {
+        return (titulo == null || titulo.isBlank()) &&
+                (autor == null || autor.isBlank()) &&
+                (editora == null || editora.isBlank()) &&
+                (edicao == null || edicao.isBlank()) &&
+                (categoria == null || categoria.isBlank());
+    }
+
+
+    private List<LivroResponseDTO> buscarTodosLivros() {
+        return livroRepository.findAll()
+                .stream()
+                .map(LivroMapper::toResponse)
+                .toList();
+    }
+
+    private List<LivroResponseDTO> buscarLivrosComFiltros(String titulo, String autor, String editora, String edicao, String categoria) {
+        Integer edicaoInt = converterEdicao(edicao);
+        CategoriaLivro categoriaEnum = converterCategoria(categoria);
+
+        List<Livro> livros = livroRepository.buscarComFiltros(titulo, autor, editora, edicaoInt, categoriaEnum);
+
+        return livros.stream()
+                .map(LivroMapper::toResponse)
+                .toList();
+    }
+
+    private Integer converterEdicao(String edicao) {
+        if (edicao == null || edicao.isBlank()) {
+            return null;
+        }
+
+        try {
+            return Integer.valueOf(edicao.trim());
+        } catch (NumberFormatException e) {
+            throw new IllegalArgumentException("Edição inválida.");
+        }
+    }
+
+    private CategoriaLivro converterCategoria(String categoria) {
+        if (categoria == null || categoria.isBlank()) {
+            return null;
+        }
+
+        try {
+            return CategoriaLivro.valueOf(categoria.toUpperCase().trim());
+        } catch (IllegalArgumentException e) {
+            throw new RecursoNaoEncontradoException("Categoria inválida.");
+        }
+    }
 }
-
-

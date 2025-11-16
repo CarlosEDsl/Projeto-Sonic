@@ -27,8 +27,14 @@ public class LivroController {
     }
 
     @GetMapping
-    public ResponseEntity<List<LivroResponseDTO>> listar() {
-        return ResponseEntity.ok(livroService.listarLivros());
+    public ResponseEntity<List<LivroResponseDTO>> listar(
+            @RequestParam(required = false) String titulo,
+            @RequestParam(required = false) String autor,
+            @RequestParam(required = false) String editora,
+            @RequestParam(required = false) String edicao,
+            @RequestParam(required = false) String categoria) {
+
+        return ResponseEntity.ok(livroService.listarLivros(titulo, autor, editora, edicao, categoria));
     }
 
     @GetMapping("/{isbn}")
