@@ -1,5 +1,6 @@
 package com.sonic.team.sonicteam.model;
 
+import com.sonic.team.sonicteam.model.catalogos.CategoriaLivro;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -32,9 +33,9 @@ public class Livro {
     @Column(nullable = false)
     private String edicao;
 
-    @ManyToOne(optional = false)
-    @JoinColumn(name = "categoria_id")
-    private CategoriaLivro categoria;
+    @Column(nullable = false)
+    @Enumerated(EnumType.STRING)
+    private CategoriaLivro categoriaLivro;
 
     @Column(nullable = false)
     private boolean disponivel = true;
