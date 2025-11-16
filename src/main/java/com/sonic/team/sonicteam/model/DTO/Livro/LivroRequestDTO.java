@@ -1,5 +1,9 @@
 package com.sonic.team.sonicteam.model.DTO.Livro;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
+import com.sonic.team.sonicteam.model.catalogos.CategoriaLivro;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
@@ -26,6 +30,6 @@ public record LivroRequestDTO(
         String edicao,
 
         @NotNull(message = "A categoria é obrigatória.")
-        Long categoriaId
+        CategoriaLivro categoriaLivro
 ) {}
 
