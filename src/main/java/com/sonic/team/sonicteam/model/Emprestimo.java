@@ -1,5 +1,6 @@
 package com.sonic.team.sonicteam.model;
 
+import com.sonic.team.sonicteam.model.usuarios.Usuario;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -34,6 +35,8 @@ public class Emprestimo {
     @Column(nullable = false)
     private LocalDateTime dataEmprestimo;
 
-    @Column()
+    @Column
     private LocalDateTime dataDevolucao;
+
+    private LocalDateTime dataEntrega;
 }

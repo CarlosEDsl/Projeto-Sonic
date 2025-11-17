@@ -63,7 +63,13 @@ public class GlobalExceptionHandler {
         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(body);
     }
 
-
+    @ExceptionHandler(Exception.class)
+    public ResponseEntity<?> handleEmprestimoInvalido(Exception ex) {
+        Map<String, Object> body = new LinkedHashMap<>();
+        body.put("status", HttpStatus.NOT_ACCEPTABLE.value());
+        body.put("erro", "Erro de dado inválido");
+        return ResponseEntity.status(HttpStatus.NOT_ACCEPTABLE).body(body);
+    }
 
 
 
