@@ -77,7 +77,7 @@ public class GlobalExceptionHandler {
         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(body);
     }
 
-    @ExceptionHandler(Exception.class)
+    @ExceptionHandler(EmprestimoInvalido.class)
     public ResponseEntity<?> handleEmprestimoInvalido(Exception ex) {
         Map<String, Object> body = new LinkedHashMap<>();
         body.put("status", HttpStatus.NOT_ACCEPTABLE.value());
