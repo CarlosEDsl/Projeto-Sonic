@@ -3,7 +3,7 @@ package com.sonic.team.sonicteam.service.emprestimo;
 import com.sonic.team.sonicteam.model.DTO.Emprestimo.EmprestimoRequestDTO;
 import com.sonic.team.sonicteam.model.Emprestimo;
 import com.sonic.team.sonicteam.model.Estoque;
-import com.sonic.team.sonicteam.model.Usuario;
+import com.sonic.team.sonicteam.model.usuario.Usuario;
 import com.sonic.team.sonicteam.repository.EmprestimoRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
