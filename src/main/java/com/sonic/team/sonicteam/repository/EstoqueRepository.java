@@ -8,4 +8,5 @@ import java.util.List;
 public interface EstoqueRepository extends JpaRepository<Estoque, Long> {
     List<Estoque> findAllByDisponivelIsTrue();
     List<Estoque> findAllByDisponivelIsTrueAndLivroIsbn(String livroIsbn);
+    Estoque getFirstByLivroIsbn(String livroIsbn);
 }

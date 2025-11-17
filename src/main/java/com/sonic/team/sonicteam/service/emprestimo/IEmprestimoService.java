@@ -9,6 +9,5 @@ public interface IEmprestimoService {
     Emprestimo criarEmprestimo(EmprestimoRequestDTO emprestimoRequestDTO);
     Emprestimo buscarEmprestimoPorId(Long id);
     List<Emprestimo> listarEmprestimos();
-    Emprestimo atualizarEmprestimo(Long id, Emprestimo dadosAtualizados);
-    boolean excluirEmprestimo(Long id);
+    Emprestimo devolverEmprestimo(Long id);
 }

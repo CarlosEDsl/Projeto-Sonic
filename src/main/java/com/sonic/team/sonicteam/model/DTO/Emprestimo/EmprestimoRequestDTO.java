@@ -1,4 +1,4 @@
 package com.sonic.team.sonicteam.model.DTO.Emprestimo;
 
-public record EmprestimoRequestDTO(String cpfUsuario, Long idExemplar) {
+public record EmprestimoRequestDTO(String cpfUsuario, String livroISBN) {
 }

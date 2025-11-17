@@ -2,6 +2,7 @@ package com.sonic.team.sonicteam.model.usuario;
 
 import com.sonic.team.sonicteam.model.Curso;
 import com.sonic.team.sonicteam.model.DTO.Usuario.CategoriaUsuario;
+import com.sonic.team.sonicteam.strategies.EmprestimoStrategy;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -12,7 +13,7 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @NoArgsConstructor
 @Table(name = "usuario")
-public class Usuario {
+public abstract class Usuario {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
@@ -37,4 +38,9 @@ public class Usuario {
     @ManyToOne(optional = false, fetch = FetchType.EAGER)
     @JoinColumn(name = "curso_id")
     private Curso curso;
+
+    @Column
+    private String tipo;
+
+    public abstract EmprestimoStrategy getEmprestimoStrategy();
 }

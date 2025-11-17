@@ -16,7 +16,7 @@ import org.springframework.stereotype.Service;
 import java.util.List;
 
 @Service
-public class EstoqueService implements IEstoqueService{
+public class EstoqueService implements IEstoqueService, IEstoqueEmprestimoService{
     private final EstoqueRepository estoqueRepository;
     private final LivroRepository livroRepository;
     private final EstoqueValidator estoqueValidator;
@@ -73,6 +73,18 @@ public class EstoqueService implements IEstoqueService{
             else throw new ExemplarNaoEstaDisponivelException(id);
         } catch (EmptyResultDataAccessException e) {
             throw new RecursoNaoEncontradoException("Exemplar não encontrado com o id " + id);
+        }
+    }
+
+    public Estoque pegarUmExemplarDisponivel(String livroISBN) {
+        try{
+            Estoque estoque = this.estoqueRepository.getFirstByLivroIsbn(livroISBN);
+            if(estoque.getDisponivel()) {
+                return estoque;
+            }
+            else throw new ExemplarNaoEstaDisponivelException(0L);
+        } catch (EmptyResultDataAccessException e) {
+            throw new RecursoNaoEncontradoException("Exemplar não encontrado com o ISBN " + livroISBN);
         }
     }
 }
