@@ -1,10 +1,15 @@
 package com.sonic.team.sonicteam.service.emprestimo;
 
+import com.sonic.team.sonicteam.exception.EmprestimoInvalido;
 import com.sonic.team.sonicteam.model.DTO.Emprestimo.EmprestimoRequestDTO;
 import com.sonic.team.sonicteam.model.Emprestimo;
 import com.sonic.team.sonicteam.model.Estoque;
-import com.sonic.team.sonicteam.model.Usuario;
+import com.sonic.team.sonicteam.model.usuario.StatusUsuario;
+import com.sonic.team.sonicteam.model.usuario.Usuario;
 import com.sonic.team.sonicteam.repository.EmprestimoRepository;
+import com.sonic.team.sonicteam.service.estoque.IEstoqueEmprestimoService;
+import com.sonic.team.sonicteam.service.usuario.IUsuarioEmprestimoService;
+import com.sonic.team.sonicteam.strategies.EmprestimoStrategy;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -15,26 +20,31 @@ import java.util.List;
 public class EmprestimoService implements IEmprestimoService {
 
     private final EmprestimoRepository emprestimoRepository;
+    private final IUsuarioEmprestimoService usuarioService;
+    private final IEstoqueEmprestimoService estoqueService;
 
-    public EmprestimoService(EmprestimoRepository emprestimoRepository) {
+    public EmprestimoService(EmprestimoRepository emprestimoRepository, IUsuarioEmprestimoService usuarioService, IEstoqueEmprestimoService estoqueService) {
         this.emprestimoRepository = emprestimoRepository;
+        this.usuarioService = usuarioService;
+        this.estoqueService = estoqueService;
     }
 
-    // TODO: Implementar os serviços para buscar os usuários e exemplares para testar validade e salvar.
     @Transactional
     public Emprestimo criarEmprestimo(EmprestimoRequestDTO emprestimoRequestDTO) {
+        try{
+            Usuario usuario = this.usuarioService.pegarUsuarioPorCPF(emprestimoRequestDTO.cpfUsuario());
+            EmprestimoStrategy strategy = usuario.getEmprestimoStrategy();
+            Estoque estoque = this.estoqueService.pegarUmExemplarDisponivel(emprestimoRequestDTO.livroISBN());
+            Emprestimo emprestimo = strategy.pegarEmprestimo(estoque);
 
-        Usuario usuario = new Usuario();
-        Estoque estoque = new Estoque();
+            this.verifyEmprestimo(emprestimo, strategy.pegarLimiteEmprestimos());
 
-        LocalDateTime dataDevolucao = LocalDateTime.now();
-
-        Emprestimo emprestimo = new Emprestimo(usuario, estoque, dataDevolucao);
-
-        return this.emprestimoRepository.save(emprestimo);
+            return this.emprestimoRepository.save(emprestimo);
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
     }
 
-    // TODO: Tratar melhor os resultados negativos
     @Transactional(readOnly = true)
     public Emprestimo buscarEmprestimoPorId(Long id) {
         return this.emprestimoRepository.findById(id).orElse(null);
@@ -46,24 +56,23 @@ public class EmprestimoService implements IEmprestimoService {
     }
 
     @Transactional
-    public Emprestimo atualizarEmprestimo(Long id, Emprestimo dadosAtualizados) {
-        return emprestimoRepository.findById(id)
-                .map(existing -> {
-                    existing.setUsuario(dadosAtualizados.getUsuario());
-                    existing.setEstoque(dadosAtualizados.getEstoque());
-                    existing.setDataEmprestimo(dadosAtualizados.getDataEmprestimo());
-                    existing.setDataDevolucao(dadosAtualizados.getDataDevolucao());
-                    return emprestimoRepository.save(existing);
-                })
-                .orElseThrow(() -> new RuntimeException("Empréstimo não encontrado"));
+    public Emprestimo devolverEmprestimo(Long id) {
+        Emprestimo emprestimo = this.buscarEmprestimoPorId(id);
+        emprestimo.setDataEntrega(LocalDateTime.now());
+
+        return this.emprestimoRepository.save(emprestimo);
     }
 
-    @Transactional
-    public boolean excluirEmprestimo(Long id) {
-        if (emprestimoRepository.existsById(id)) {
-            emprestimoRepository.deleteById(id);
-            return true;
+    private void verifyEmprestimo(Emprestimo emprestimo, int limiteEmprestimos) {
+        long quantidadeEmprestimosAtivos = this.emprestimoRepository
+                .countByUsuarioIdAndDataEntregaIsNull(emprestimo.getUsuario().getId());
+
+        if(emprestimo.getUsuario().getStatus() == StatusUsuario.INATIVO
+                || emprestimo.getUsuario().getStatus() == StatusUsuario.SUSPENSO) {
+            throw new EmprestimoInvalido("O usuário está inativado");
         }
-        return false;
+        if(quantidadeEmprestimosAtivos < limiteEmprestimos) {
+            throw new EmprestimoInvalido("O usuário está tentando pegar mais livros do que é permitido");
+        }
     }
 }
