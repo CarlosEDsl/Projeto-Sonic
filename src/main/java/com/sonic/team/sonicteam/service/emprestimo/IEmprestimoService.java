@@ -10,4 +10,5 @@ public interface IEmprestimoService {
     Emprestimo buscarEmprestimoPorId(Long id);
     List<Emprestimo> listarEmprestimos();
     Emprestimo devolverEmprestimo(Long id);
+    long contarEmprestimosAtivosPorUsuario(Long usuarioId);
 }

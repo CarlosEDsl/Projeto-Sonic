@@ -1,8 +1,10 @@
 package com.sonic.team.sonicteam.controller;
 
+import com.sonic.team.sonicteam.model.DTO.Usuario.SuspensaoRequestDTO;
 import com.sonic.team.sonicteam.model.DTO.Usuario.UsuarioRequestDTO;
 import com.sonic.team.sonicteam.model.DTO.Usuario.UsuarioResponseDTO;
 import com.sonic.team.sonicteam.service.usuario.UsuarioService;
+import com.sonic.team.sonicteam.util.ConstantesUsuario;
 import com.sonic.team.sonicteam.util.CpfUtil;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.Pattern;
@@ -32,15 +34,15 @@ public class UsuarioController {
 
     @GetMapping
     public ResponseEntity<Page<UsuarioResponseDTO>> listarUsuarios(
-            @PageableDefault(size = 20, sort = "nome") Pageable pageable) {
+            @PageableDefault(size = ConstantesUsuario.TAMANHO_PAGINA_PADRAO, sort = ConstantesUsuario.ORDENACAO_PADRAO) Pageable pageable) {
         return ResponseEntity.ok(usuarioService.listarTodos(pageable));
     }
 
     @GetMapping("/{cpf}")
     public ResponseEntity<UsuarioResponseDTO> buscarUsuarioPorCpf(
             @PathVariable
-            @Pattern(regexp = "\\d{11}|\\d{3}\\.\\d{3}\\.\\d{3}-\\d{2}", message = "CPF deve estar no formato válido")
-            @CpfUtil.Valid(message = "CPF inválido")
+            @Pattern(regexp = ConstantesUsuario.REGEX_CPF, message = ConstantesUsuario.MENSAGEM_CPF_FORMATO_INVALIDO)
+            @CpfUtil.Valid(message = ConstantesUsuario.MENSAGEM_CPF_INVALIDO)
             String cpf) {
         return ResponseEntity.ok(usuarioService.buscarPorCpf(cpf));
     }
@@ -48,8 +50,8 @@ public class UsuarioController {
     @PutMapping("/{cpf}")
     public ResponseEntity<UsuarioResponseDTO> atualizarUsuario(
             @PathVariable
-            @Pattern(regexp = "\\d{11}|\\d{3}\\.\\d{3}\\.\\d{3}-\\d{2}", message = "CPF deve estar no formato válido")
-            @CpfUtil.Valid(message = "CPF inválido")
+            @Pattern(regexp = ConstantesUsuario.REGEX_CPF, message = ConstantesUsuario.MENSAGEM_CPF_FORMATO_INVALIDO)
+            @CpfUtil.Valid(message = ConstantesUsuario.MENSAGEM_CPF_INVALIDO)
             String cpf,
             @Valid @RequestBody UsuarioRequestDTO dto) {
         return ResponseEntity.ok(usuarioService.atualizar(cpf, dto));
@@ -58,10 +60,38 @@ public class UsuarioController {
     @DeleteMapping("/{cpf}")
     public ResponseEntity<Void> removerUsuario(
             @PathVariable
-            @Pattern(regexp = "\\d{11}|\\d{3}\\.\\d{3}\\.\\d{3}-\\d{2}", message = "CPF deve estar no formato válido")
-            @CpfUtil.Valid(message = "CPF inválido")
+            @Pattern(regexp = ConstantesUsuario.REGEX_CPF, message = ConstantesUsuario.MENSAGEM_CPF_FORMATO_INVALIDO)
+            @CpfUtil.Valid(message = ConstantesUsuario.MENSAGEM_CPF_INVALIDO)
             String cpf) {
         usuarioService.deletar(cpf);
         return ResponseEntity.noContent().build();
+    }
+
+    @PatchMapping("/{cpf}/suspender")
+    public ResponseEntity<UsuarioResponseDTO> suspenderUsuario(
+            @PathVariable
+            @Pattern(regexp = ConstantesUsuario.REGEX_CPF, message = ConstantesUsuario.MENSAGEM_CPF_FORMATO_INVALIDO)
+            @CpfUtil.Valid(message = ConstantesUsuario.MENSAGEM_CPF_INVALIDO)
+            String cpf,
+            @Valid @RequestBody SuspensaoRequestDTO dto) {
+        return ResponseEntity.ok(usuarioService.suspender(cpf, dto.getMotivo()));
+    }
+
+    @PatchMapping("/{cpf}/reativar")
+    public ResponseEntity<UsuarioResponseDTO> reativarUsuario(
+            @PathVariable
+            @Pattern(regexp = ConstantesUsuario.REGEX_CPF, message = ConstantesUsuario.MENSAGEM_CPF_FORMATO_INVALIDO)
+            @CpfUtil.Valid(message = ConstantesUsuario.MENSAGEM_CPF_INVALIDO)
+            String cpf) {
+        return ResponseEntity.ok(usuarioService.reativar(cpf));
+    }
+
+    @PatchMapping("/{cpf}/inativar")
+    public ResponseEntity<UsuarioResponseDTO> inativarUsuario(
+            @PathVariable
+            @Pattern(regexp = ConstantesUsuario.REGEX_CPF, message = ConstantesUsuario.MENSAGEM_CPF_FORMATO_INVALIDO)
+            @CpfUtil.Valid(message = ConstantesUsuario.MENSAGEM_CPF_INVALIDO)
+            String cpf) {
+        return ResponseEntity.ok(usuarioService.inativar(cpf));
     }
 }

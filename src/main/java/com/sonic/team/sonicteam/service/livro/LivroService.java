@@ -1,6 +1,5 @@
 package com.sonic.team.sonicteam.service.livro;
 
-import com.sonic.team.sonicteam.exception.RecursoJaExisteException;
 import com.sonic.team.sonicteam.exception.RecursoNaoEncontradoException;
 import com.sonic.team.sonicteam.model.DTO.Livro.LivroRequestDTO;
 import com.sonic.team.sonicteam.model.DTO.Livro.LivroResponseDTO;

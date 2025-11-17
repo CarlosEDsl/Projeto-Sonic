@@ -1,5 +1,6 @@
 package com.sonic.team.sonicteam.model.DTO.Usuario;
 
+import com.sonic.team.sonicteam.util.ConstantesUsuario;
 import com.sonic.team.sonicteam.util.CpfUtil;
 import jakarta.validation.constraints.*;
 import lombok.AllArgsConstructor;
@@ -15,8 +16,8 @@ public class UsuarioRequestDTO {
     private String nome;
 
     @NotBlank(message = "CPF é obrigatório")
-    @Pattern(regexp = "\\d{11}|\\d{3}\\.\\d{3}\\.\\d{3}-\\d{2}", message = "CPF deve estar no formato válido (11 dígitos ou XXX.XXX.XXX-XX)")
-    @CpfUtil.Valid(message = "CPF inválido")
+    @Pattern(regexp = ConstantesUsuario.REGEX_CPF, message = "CPF deve estar no formato válido (11 dígitos ou XXX.XXX.XXX-XX)")
+    @CpfUtil.Valid(message = ConstantesUsuario.MENSAGEM_CPF_INVALIDO)
     private String cpf;
 
     @NotBlank(message = "Email é obrigatório")
@@ -30,4 +31,8 @@ public class UsuarioRequestDTO {
     @NotNull(message = "Curso é obrigatório")
     @Positive(message = "ID do curso deve ser positivo")
     private Long cursoId;
+
+    @NotBlank(message = "Tipo é obrigatório")
+    @Pattern(regexp = ConstantesUsuario.REGEX_TIPO_USUARIO, message = ConstantesUsuario.MENSAGEM_TIPO_INVALIDO)
+    private String tipo;
 }

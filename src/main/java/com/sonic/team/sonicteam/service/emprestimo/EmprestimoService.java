@@ -63,6 +63,11 @@ public class EmprestimoService implements IEmprestimoService {
         return this.emprestimoRepository.save(emprestimo);
     }
 
+    @Transactional(readOnly = true)
+    public long contarEmprestimosAtivosPorUsuario(Long usuarioId) {
+        return emprestimoRepository.countByUsuarioIdAndDataEntregaIsNull(usuarioId);
+    }
+
     private void verifyEmprestimo(Emprestimo emprestimo, int limiteEmprestimos) {
         long quantidadeEmprestimosAtivos = this.emprestimoRepository
                 .countByUsuarioIdAndDataEntregaIsNull(emprestimo.getUsuario().getId());

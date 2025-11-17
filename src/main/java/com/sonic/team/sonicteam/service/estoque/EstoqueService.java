@@ -2,10 +2,12 @@ package com.sonic.team.sonicteam.service.estoque;
 
 import com.sonic.team.sonicteam.exception.ExemplarNaoEstaDisponivelException;
 import com.sonic.team.sonicteam.exception.RecursoNaoEncontradoException;
+
 import com.sonic.team.sonicteam.model.DTO.Estoque.AtualizarEstoqueResquestDTO;
 import com.sonic.team.sonicteam.model.DTO.Estoque.EstoqueRequestDTO;
 import com.sonic.team.sonicteam.model.DTO.Estoque.EstoqueResponseDTO;
 import com.sonic.team.sonicteam.model.Estoque;
+
 import com.sonic.team.sonicteam.repository.EstoqueRepository;
 import com.sonic.team.sonicteam.repository.LivroRepository;
 import com.sonic.team.sonicteam.util.EstoqueMapper;
