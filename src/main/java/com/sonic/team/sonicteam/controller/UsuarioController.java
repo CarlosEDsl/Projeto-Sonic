@@ -2,6 +2,7 @@ package com.sonic.team.sonicteam.controller;
 
 import com.sonic.team.sonicteam.model.DTO.Usuario.UsuarioRequestDTO;
 import com.sonic.team.sonicteam.model.DTO.Usuario.UsuarioResponseDTO;
+import com.sonic.team.sonicteam.model.usuario.StatusUsuario;
 import com.sonic.team.sonicteam.service.usuario.UsuarioService;
 import com.sonic.team.sonicteam.util.CpfUtil;
 import jakarta.validation.Valid;
@@ -32,8 +33,17 @@ public class UsuarioController {
 
     @GetMapping
     public ResponseEntity<Page<UsuarioResponseDTO>> listarUsuarios(
-            @PageableDefault(size = 20, sort = "nome") Pageable pageable) {
-        return ResponseEntity.ok(usuarioService.listarTodos(pageable));
+            @PageableDefault(size = 20, sort = "nome") Pageable pageable,
+            @RequestParam(required = false) String nome,
+            @RequestParam(required = false)
+            @Pattern(regexp = "\\d{11}|\\d{3}\\.\\d{3}\\.\\d{3}-\\d{2}", message = "CPF deve estar no formato válido")
+            @CpfUtil.Valid(message = "CPF inválido")
+            String cpf,
+            @RequestParam(required = false) StatusUsuario status,
+            @RequestParam(required = false) Long categoriaId,
+            @RequestParam(required = false) Long cursoId) {
+        return ResponseEntity.ok(
+                usuarioService.listarTodos(pageable, nome, cpf, status, categoriaId, cursoId));
     }
 
     @GetMapping("/{cpf}")
@@ -45,6 +55,7 @@ public class UsuarioController {
         return ResponseEntity.ok(usuarioService.buscarPorCpf(cpf));
     }
 
+    //TODO: impedir a atualização de um usuario que possua empréstimos ativos
     @PutMapping("/{cpf}")
     public ResponseEntity<UsuarioResponseDTO> atualizarUsuario(
             @PathVariable
@@ -55,6 +66,7 @@ public class UsuarioController {
         return ResponseEntity.ok(usuarioService.atualizar(cpf, dto));
     }
 
+    //TODO: impedir a deletação de um usuario que possua empréstimos ativos
     @DeleteMapping("/{cpf}")
     public ResponseEntity<Void> removerUsuario(
             @PathVariable

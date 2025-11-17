@@ -64,8 +64,23 @@ public class UsuarioService {
     }
 
     @Transactional(readOnly = true)
-    public Page<UsuarioResponseDTO> listarTodos(Pageable pageable) {
-        return usuarioRepository.findAll(pageable).map(this::toResponseDTO);
+    public Page<UsuarioResponseDTO> listarTodos(Pageable pageable,
+                                                String nome,
+                                                String cpf,
+                                                StatusUsuario status,
+                                                Long categoriaId,
+                                                Long cursoId) {
+        String nomeFiltro = normalizeTexto(nome);
+        String cpfFiltro = normalizeCpfFiltro(cpf);
+
+        return usuarioRepository.buscarComFiltros(
+                        nomeFiltro,
+                        cpfFiltro,
+                        status,
+                        categoriaId,
+                        cursoId,
+                        pageable)
+                .map(this::toResponseDTO);
     }
 
     @Transactional(readOnly = true)
@@ -122,5 +137,21 @@ public class UsuarioService {
         dto.setCategoriaNome(usuario.getCategoria().getNome());
         dto.setCursoNome(usuario.getCurso().getNome());
         return dto;
+    }
+
+    private String normalizeTexto(String valor) {
+        if (valor == null) {
+            return null;
+        }
+        String trimmed = valor.trim();
+        return trimmed.isEmpty() ? null : trimmed;
+    }
+
+    private String normalizeCpfFiltro(String cpf) {
+        if (cpf == null || cpf.isBlank()) {
+            return null;
+        }
+        String normalizado = cpfUtil.normalize(cpf);
+        return (normalizado == null || normalizado.isBlank()) ? null : normalizado;
     }
 }
