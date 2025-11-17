@@ -3,7 +3,6 @@ package com.sonic.team.sonicteam.util;
 import com.sonic.team.sonicteam.model.DTO.Livro.LivroRequestDTO;
 import com.sonic.team.sonicteam.model.DTO.Livro.LivroResponseDTO;
 import com.sonic.team.sonicteam.model.Livro;
-import com.sonic.team.sonicteam.model.catalogos.CategoriaLivro;
 
 public class LivroMapper {
 

@@ -2,19 +2,25 @@ package com.sonic.team.sonicteam.service.usuario;
 
 import com.sonic.team.sonicteam.exception.ConflitoNegocioException;
 import com.sonic.team.sonicteam.exception.DadoInvalidoException;
+
 import com.sonic.team.sonicteam.model.Curso;
 import com.sonic.team.sonicteam.model.DTO.Usuario.CategoriaUsuario;
+import com.sonic.team.sonicteam.model.DTO.Usuario.FiltroUsuarioDTO;
 import com.sonic.team.sonicteam.model.DTO.Usuario.UsuarioRequestDTO;
 import com.sonic.team.sonicteam.model.DTO.Usuario.UsuarioResponseDTO;
 import com.sonic.team.sonicteam.model.usuario.StatusUsuario;
+import com.sonic.team.sonicteam.model.usuario.TipoUsuario;
 import com.sonic.team.sonicteam.model.usuario.Usuario;
-import com.sonic.team.sonicteam.repository.CategoriaUsuarioRepository;
-import com.sonic.team.sonicteam.repository.CursoRepository;
+
+import com.sonic.team.sonicteam.repository.EmprestimoRepository;
 import com.sonic.team.sonicteam.repository.UsuarioRepository;
+import com.sonic.team.sonicteam.service.CursoService;
 import com.sonic.team.sonicteam.util.CpfUtil;
-import org.modelmapper.ModelMapper;
+import com.sonic.team.sonicteam.util.MensagensUsuario;
+
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -22,22 +28,29 @@ import java.util.List;
 
 @Service
 public class UsuarioService implements IUsuarioEmprestimoService {
+    
     private final UsuarioRepository usuarioRepository;
-    private final CategoriaUsuarioRepository categoriaUsuarioRepository;
-    private final CursoRepository cursoRepository;
-    private final ModelMapper modelMapper;
+    private final CategoriaUsuarioService categoriaUsuarioService;
+    private final CursoService cursoService;
+    private final EmprestimoRepository emprestimoRepository;
     private final CpfUtil cpfUtil;
+    private final UsuarioFactory usuarioFactory;
+    private final UsuarioMapper usuarioMapper;
 
     public UsuarioService(UsuarioRepository usuarioRepository,
-                          CategoriaUsuarioRepository categoriaUsuarioRepository,
-                          CursoRepository cursoRepository,
-                          ModelMapper modelMapper,
-                          CpfUtil cpfUtil) {
+                          CategoriaUsuarioService categoriaUsuarioService,
+                          CursoService cursoService,
+                          EmprestimoRepository emprestimoRepository,
+                          CpfUtil cpfUtil,
+                          UsuarioFactory usuarioFactory,
+                          UsuarioMapper usuarioMapper) {
         this.usuarioRepository = usuarioRepository;
-        this.categoriaUsuarioRepository = categoriaUsuarioRepository;
-        this.cursoRepository = cursoRepository;
-        this.modelMapper = modelMapper;
+        this.categoriaUsuarioService = categoriaUsuarioService;
+        this.cursoService = cursoService;
+        this.emprestimoRepository = emprestimoRepository;
         this.cpfUtil = cpfUtil;
+        this.usuarioFactory = usuarioFactory;
+        this.usuarioMapper = usuarioMapper;
     }
 
     @Transactional
@@ -45,40 +58,40 @@ public class UsuarioService implements IUsuarioEmprestimoService {
         String cpf = cpfUtil.normalize(dto.getCpf());
 
         if (usuarioRepository.existsByCpf(cpf)) {
-            throw new ConflitoNegocioException("CPF duplicado");
+            throw new ConflitoNegocioException(MensagensUsuario.CPF_DUPLICADO);
         }
 
-        CategoriaUsuario categoria = categoriaUsuarioRepository.findById(dto.getCategoriaId())
-                .orElseThrow(() -> new DadoInvalidoException("Categoria inexistente"));
-        Curso curso = cursoRepository.findById(dto.getCursoId())
-                .orElseThrow(() -> new DadoInvalidoException("Curso inexistente"));
+        CategoriaUsuario categoria = categoriaUsuarioService.buscarPorId(dto.getCategoriaId());
+        Curso curso = cursoService.buscarPorId(dto.getCursoId());
 
-        Usuario usuario = modelMapper.map(dto, Usuario.class);
+        Usuario usuario = usuarioFactory.criar(dto);
         usuario.setCpf(cpf);
         usuario.setStatus(StatusUsuario.ATIVO);
         usuario.setCategoria(categoria);
         usuario.setCurso(curso);
 
         Usuario salvo = usuarioRepository.save(usuario);
-        return toResponseDTO(salvo);
+        return usuarioMapper.toResponseDTO(salvo);
     }
 
     @Transactional(readOnly = true)
     public Page<UsuarioResponseDTO> listarTodos(Pageable pageable) {
-        return usuarioRepository.findAll(pageable).map(this::toResponseDTO);
+        return usuarioRepository.findAll(pageable).map(usuarioMapper::toResponseDTO);
     }
 
     @Transactional(readOnly = true)
     public List<UsuarioResponseDTO> listarTodos() {
-        return usuarioRepository.findAll().stream().map(this::toResponseDTO).toList();
+        return usuarioRepository.findAllWithRelationships().stream()
+                .map(usuarioMapper::toResponseDTO)
+                .toList();
     }
 
     @Transactional(readOnly = true)
     public UsuarioResponseDTO buscarPorCpf(String cpf) {
         String cpfNormalizado = cpfUtil.normalize(cpf);
         Usuario usuario = usuarioRepository.findByCpf(cpfNormalizado)
-                .orElseThrow(() -> new DadoInvalidoException("Usuário não encontrado"));
-        return toResponseDTO(usuario);
+                .orElseThrow(() -> new DadoInvalidoException(MensagensUsuario.USUARIO_NAO_ENCONTRADO));
+        return usuarioMapper.toResponseDTO(usuario);
     }
 
     @Transactional
@@ -87,45 +100,99 @@ public class UsuarioService implements IUsuarioEmprestimoService {
         String cpfDto = cpfUtil.normalize(dto.getCpf());
 
         if (!cpf.equals(cpfDto)) {
-            throw new DadoInvalidoException("CPF não pode ser alterado");
+            throw new DadoInvalidoException(MensagensUsuario.CPF_NAO_PODE_SER_ALTERADO);
         }
 
-        Usuario usuario = usuarioRepository.findByCpf(cpf)
-                .orElseThrow(() -> new DadoInvalidoException("Usuário não encontrado"));
+        Usuario usuario = buscarUsuarioPorCpfNormalizado(cpf);
 
-        CategoriaUsuario categoria = categoriaUsuarioRepository.findById(dto.getCategoriaId())
-                .orElseThrow(() -> new DadoInvalidoException("Categoria inexistente"));
-        Curso curso = cursoRepository.findById(dto.getCursoId())
-                .orElseThrow(() -> new DadoInvalidoException("Curso inexistente"));
+        TipoUsuario tipoAtual = usuario.getTipoUsuario();
+        TipoUsuario tipoDto;
+        try {
+            tipoDto = TipoUsuario.fromString(dto.getTipo());
+        } catch (IllegalArgumentException e) {
+            throw new DadoInvalidoException(
+                String.format(MensagensUsuario.TIPO_USUARIO_INVALIDO, dto.getTipo())
+            );
+        }
+        
+        if (tipoAtual != tipoDto) {
+            throw new DadoInvalidoException(MensagensUsuario.TIPO_USUARIO_NAO_PODE_SER_ALTERADO);
+        }
 
-        modelMapper.map(dto, usuario);
+        CategoriaUsuario categoria = categoriaUsuarioService.buscarPorId(dto.getCategoriaId());
+        Curso curso = cursoService.buscarPorId(dto.getCursoId());
+
+        usuario.setNome(dto.getNome());
+        usuario.setEmail(dto.getEmail());
         usuario.setCpf(cpf);
         usuario.setCategoria(categoria);
         usuario.setCurso(curso);
 
         Usuario salvo = usuarioRepository.save(usuario);
-        return toResponseDTO(salvo);
+        return usuarioMapper.toResponseDTO(salvo);
     }
 
     @Transactional
     public void deletar(String cpf) {
-        String cpfNormalizado = cpfUtil.normalize(cpf);
-        Usuario usuario = usuarioRepository.findByCpf(cpfNormalizado)
-                .orElseThrow(() -> new DadoInvalidoException("Usuário não encontrado"));
+        Usuario usuario = buscarUsuarioPorCpfNormalizado(cpf);
+        
+        long emprestimosAtivos = emprestimoRepository
+            .countByUsuarioIdAndDataEntregaIsNull(usuario.getId());
+        
+        if (emprestimosAtivos > 0) {
+            throw new ConflitoNegocioException(MensagensUsuario.USUARIO_COM_EMPRESTIMOS_PENDENTES);
+        }
+        
         usuarioRepository.delete(usuario);
-    }
-
-    private UsuarioResponseDTO toResponseDTO(Usuario usuario) {
-        UsuarioResponseDTO dto = modelMapper.map(usuario, UsuarioResponseDTO.class);
-        dto.setId(usuario.getId());
-        dto.setStatus(usuario.getStatus().name());
-        dto.setCategoriaNome(usuario.getCategoria().getNome());
-        dto.setCursoNome(usuario.getCurso().getNome());
-        return dto;
     }
 
     @Override
     public Usuario pegarUsuarioPorCPF(String cpf) {
-        return null;
+        return buscarUsuarioPorCpfNormalizado(cpf);
+    }
+
+    @Transactional
+    public UsuarioResponseDTO suspender(String cpf, String motivo) {
+        Usuario usuario = buscarUsuarioPorCpfNormalizado(cpf);
+        Usuario atualizado = alterarStatus(usuario, StatusUsuario.SUSPENSO, MensagensUsuario.USUARIO_JA_SUSPENSO);
+        return usuarioMapper.toResponseDTO(atualizado);
+    }
+
+    @Transactional
+    public UsuarioResponseDTO reativar(String cpf) {
+        Usuario usuario = buscarUsuarioPorCpfNormalizado(cpf);
+        Usuario atualizado = alterarStatus(usuario, StatusUsuario.ATIVO, MensagensUsuario.USUARIO_JA_ATIVO);
+        return usuarioMapper.toResponseDTO(atualizado);
+    }
+
+    @Transactional
+    public UsuarioResponseDTO inativar(String cpf) {
+        Usuario usuario = buscarUsuarioPorCpfNormalizado(cpf);
+        Usuario atualizado = alterarStatus(usuario, StatusUsuario.INATIVO, MensagensUsuario.USUARIO_JA_INATIVO);
+        return usuarioMapper.toResponseDTO(atualizado);
+    }
+
+    @Transactional(readOnly = true)
+    public Page<UsuarioResponseDTO> buscarComFiltros(FiltroUsuarioDTO filtro, Pageable pageable) {
+        Specification<Usuario> spec = UsuarioQueryBuilder.comFiltros(filtro);
+        Page<Usuario> usuarios = usuarioRepository.findAll(spec, pageable);
+        
+        return usuarios.map(usuarioMapper::toResponseDTO);
+    }
+
+    private Usuario buscarUsuarioPorCpfNormalizado(String cpf) {
+        String cpfNormalizado = cpfUtil.normalize(cpf);
+        return usuarioRepository.findByCpf(cpfNormalizado)
+                .orElseThrow(() -> new DadoInvalidoException(MensagensUsuario.USUARIO_NAO_ENCONTRADO));
+    }
+
+    private Usuario alterarStatus(Usuario usuario, StatusUsuario novoStatus, String mensagemJaNoStatus) {
+        if (usuario.getStatus() == novoStatus) {
+            throw new DadoInvalidoException(mensagemJaNoStatus);
+        }
+
+        usuario.getStatus().validarTransicao(novoStatus);
+        usuario.setStatus(novoStatus);
+        return usuarioRepository.save(usuario);
     }
 }

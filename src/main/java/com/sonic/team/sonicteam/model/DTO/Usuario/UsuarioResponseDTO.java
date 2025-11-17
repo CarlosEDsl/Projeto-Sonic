@@ -15,4 +15,5 @@ public class UsuarioResponseDTO {
     private String status;
     private String categoriaNome;
     private String cursoNome;
+    private String tipo;
 }
