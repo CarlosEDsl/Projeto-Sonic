@@ -1,6 +1,6 @@
 package com.sonic.team.sonicteam.model;
 
-import com.sonic.team.sonicteam.model.usuarios.Usuario;
+import com.sonic.team.sonicteam.model.usuario.Usuario;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
