@@ -15,7 +15,7 @@ import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
-@RequestMapping("/library/usuarios")
+@RequestMapping("/usuarios")
 @Validated
 public class UsuarioController {
     private final UsuarioService usuarioService;
