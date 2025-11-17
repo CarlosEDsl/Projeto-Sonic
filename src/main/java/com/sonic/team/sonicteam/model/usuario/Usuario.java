@@ -12,7 +12,11 @@ import lombok.NoArgsConstructor;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-@Table(name = "usuario")
+@Table(name = "usuario", indexes = {
+    @Index(name = "idx_usuario_cpf", columnList = "cpf")
+})
+@Inheritance(strategy = InheritanceType.SINGLE_TABLE)
+@DiscriminatorColumn(name = "tipo", discriminatorType = DiscriminatorType.STRING)
 public abstract class Usuario {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -31,16 +35,28 @@ public abstract class Usuario {
     @Column(nullable = false)
     private StatusUsuario status;
 
-    @ManyToOne(optional = false, fetch = FetchType.EAGER)
+    @ManyToOne(optional = false, fetch = FetchType.LAZY)
     @JoinColumn(name = "categoria_usuario_id")
     private CategoriaUsuario categoria;
 
-    @ManyToOne(optional = false, fetch = FetchType.EAGER)
+    @ManyToOne(optional = false, fetch = FetchType.LAZY)
     @JoinColumn(name = "curso_id")
     private Curso curso;
 
-    @Column
-    private String tipo;
-
     public abstract EmprestimoStrategy getEmprestimoStrategy();
+    
+    public boolean isAtivo() {
+        return this.status == StatusUsuario.ATIVO;
+    }
+    
+    public TipoUsuario getTipoUsuario() {
+        if (this instanceof Aluno) {
+            return TipoUsuario.ALUNO;
+        } else if (this instanceof Professor) {
+            return TipoUsuario.PROFESSOR;
+        } else if (this instanceof Bibliotecario) {
+            return TipoUsuario.BIBLIOTECARIO;
+        }
+        throw new IllegalStateException("Tipo de usuário desconhecido");
+    }
 }
