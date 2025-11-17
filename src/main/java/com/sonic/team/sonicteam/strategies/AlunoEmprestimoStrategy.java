@@ -3,8 +3,8 @@ package com.sonic.team.sonicteam.strategies;
 import com.sonic.team.sonicteam.model.Emprestimo;
 import com.sonic.team.sonicteam.model.Estoque;
 import com.sonic.team.sonicteam.model.Livro;
-import com.sonic.team.sonicteam.model.usuarios.Aluno;
-import com.sonic.team.sonicteam.model.usuarios.Usuario;
+import com.sonic.team.sonicteam.model.usuario.Aluno;
+import com.sonic.team.sonicteam.model.usuario.Usuario;
 
 import java.time.LocalDateTime;
 

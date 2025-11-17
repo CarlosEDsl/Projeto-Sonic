@@ -21,7 +21,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.List;
 
 @Service
-public class UsuarioService {
+public class UsuarioService implements IUsuarioEmprestimoService {
     private final UsuarioRepository usuarioRepository;
     private final CategoriaUsuarioRepository categoriaUsuarioRepository;
     private final CursoRepository cursoRepository;
@@ -122,5 +122,10 @@ public class UsuarioService {
         dto.setCategoriaNome(usuario.getCategoria().getNome());
         dto.setCursoNome(usuario.getCurso().getNome());
         return dto;
+    }
+
+    @Override
+    public Usuario pegarUsuarioPorCPF(String cpf) {
+        return null;
     }
 }
