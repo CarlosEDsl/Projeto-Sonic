@@ -40,25 +40,12 @@ public class EmprestimoController {
         return ResponseEntity.ok(encontrado);
     }
 
-    @PutMapping("/{id}")
+    @PutMapping("/{id}/devolucao")
     public ResponseEntity<Emprestimo> atualizar(
-            @PathVariable Long id,
-            @Valid @RequestBody Emprestimo dadosAtualizados
+            @PathVariable Long id
     ) {
-        Emprestimo atualizado = emprestimoService.atualizarEmprestimo(id, dadosAtualizados);
-        if (atualizado == null) {
-            return ResponseEntity.notFound().build();
-        }
+        Emprestimo atualizado = emprestimoService.devolverEmprestimo(id);
         return ResponseEntity.ok(atualizado);
     }
 
-    @DeleteMapping("/{id}")
-    public ResponseEntity<Void> deletar(@PathVariable Long id) {
-        boolean excluiu = emprestimoService.excluirEmprestimo(id);
-        if (excluiu) {
-            return ResponseEntity.noContent().build();
-        } else {
-            return ResponseEntity.notFound().build();
-        }
-    }
 }

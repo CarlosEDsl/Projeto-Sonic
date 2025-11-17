@@ -4,13 +4,11 @@ import com.sonic.team.sonicteam.exception.EmprestimoInvalido;
 import com.sonic.team.sonicteam.model.DTO.Emprestimo.EmprestimoRequestDTO;
 import com.sonic.team.sonicteam.model.Emprestimo;
 import com.sonic.team.sonicteam.model.Estoque;
+import com.sonic.team.sonicteam.model.usuario.StatusUsuario;
 import com.sonic.team.sonicteam.model.usuario.Usuario;
 import com.sonic.team.sonicteam.repository.EmprestimoRepository;
 import com.sonic.team.sonicteam.service.estoque.IEstoqueEmprestimoService;
-import com.sonic.team.sonicteam.service.estoque.IEstoqueService;
 import com.sonic.team.sonicteam.service.usuario.IUsuarioEmprestimoService;
-import com.sonic.team.sonicteam.strategies.AlunoEmprestimoStrategy;
-import com.sonic.team.sonicteam.strategies.BaseStrategy;
 import com.sonic.team.sonicteam.strategies.EmprestimoStrategy;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -39,9 +37,7 @@ public class EmprestimoService implements IEmprestimoService {
             Estoque estoque = this.estoqueService.pegarUmExemplarDisponivel(emprestimoRequestDTO.livroISBN());
             Emprestimo emprestimo = strategy.pegarEmprestimo(estoque);
 
-
-
-            if(strategy.pegarLimiteEmprestimos() < 3){}
+            this.verifyEmprestimo(emprestimo, strategy.pegarLimiteEmprestimos());
 
             return this.emprestimoRepository.save(emprestimo);
         } catch (Exception e) {
@@ -49,7 +45,6 @@ public class EmprestimoService implements IEmprestimoService {
         }
     }
 
-    // TODO: Tratar melhor os resultados negativos
     @Transactional(readOnly = true)
     public Emprestimo buscarEmprestimoPorId(Long id) {
         return this.emprestimoRepository.findById(id).orElse(null);
@@ -61,30 +56,23 @@ public class EmprestimoService implements IEmprestimoService {
     }
 
     @Transactional
-    public Emprestimo atualizarEmprestimo(Long id, Emprestimo dadosAtualizados) {
-        return emprestimoRepository.findById(id)
-                .map(existing -> {
-                    existing.setUsuario(dadosAtualizados.getUsuario());
-                    existing.setEstoque(dadosAtualizados.getEstoque());
-                    existing.setDataEmprestimo(dadosAtualizados.getDataEmprestimo());
-                    existing.setDataDevolucao(dadosAtualizados.getDataDevolucao());
-                    return emprestimoRepository.save(existing);
-                })
-                .orElseThrow(() -> new RuntimeException("Empréstimo não encontrado"));
+    public Emprestimo devolverEmprestimo(Long id) {
+        Emprestimo emprestimo = this.buscarEmprestimoPorId(id);
+        emprestimo.setDataEntrega(LocalDateTime.now());
+
+        return this.emprestimoRepository.save(emprestimo);
     }
 
-    @Transactional
-    public boolean excluirEmprestimo(Long id) {
-        if (emprestimoRepository.existsById(id)) {
-            emprestimoRepository.deleteById(id);
-            return true;
-        }
-        return false;
-    }
+    private void verifyEmprestimo(Emprestimo emprestimo, int limiteEmprestimos) {
+        long quantidadeEmprestimosAtivos = this.emprestimoRepository
+                .countByUsuarioIdAndDataEntregaIsNull(emprestimo.getUsuario().getId());
 
-    private void verifyEmprestimo(Emprestimo emprestimo) {
-        if(emprestimo.getUsuario().getStatus() == Status.Inactive) {
+        if(emprestimo.getUsuario().getStatus() == StatusUsuario.INATIVO
+                || emprestimo.getUsuario().getStatus() == StatusUsuario.SUSPENSO) {
             throw new EmprestimoInvalido("O usuário está inativado");
+        }
+        if(quantidadeEmprestimosAtivos < limiteEmprestimos) {
+            throw new EmprestimoInvalido("O usuário está tentando pegar mais livros do que é permitido");
         }
     }
 }
