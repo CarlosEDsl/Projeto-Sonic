@@ -1,16 +1,11 @@
 package com.sonic.team.sonicteam.model;
 
-import jakarta.persistence.Entity;
-import jakarta.persistence.Id;
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NoArgsConstructor;
-
-@Entity
-@Data
-@AllArgsConstructor
-@NoArgsConstructor
-public class Usuario {
-    @Id
-    private Long id;
+/**
+ * @deprecated Utilize {@link com.sonic.team.sonicteam.model.usuario.Usuario} para o domínio.
+ */
+@Deprecated
+public final class Usuario {
+    private Usuario() {
+        throw new UnsupportedOperationException("Use o modelo em com.sonic.team.sonicteam.model.usuario");
+    }
 }
