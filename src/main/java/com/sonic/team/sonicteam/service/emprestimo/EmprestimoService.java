@@ -1,10 +1,18 @@
 package com.sonic.team.sonicteam.service.emprestimo;
 
+import com.sonic.team.sonicteam.exception.EmprestimoInvalido;
 import com.sonic.team.sonicteam.model.DTO.Emprestimo.EmprestimoRequestDTO;
 import com.sonic.team.sonicteam.model.Emprestimo;
 import com.sonic.team.sonicteam.model.Estoque;
-import com.sonic.team.sonicteam.model.Usuario;
+import com.sonic.team.sonicteam.model.usuarios.Status;
+import com.sonic.team.sonicteam.model.usuarios.Usuario;
 import com.sonic.team.sonicteam.repository.EmprestimoRepository;
+import com.sonic.team.sonicteam.service.estoque.IEstoqueEmprestimoService;
+import com.sonic.team.sonicteam.service.estoque.IEstoqueService;
+import com.sonic.team.sonicteam.service.usuario.IUsuarioEmprestimoService;
+import com.sonic.team.sonicteam.strategies.AlunoEmprestimoStrategy;
+import com.sonic.team.sonicteam.strategies.BaseStrategy;
+import com.sonic.team.sonicteam.strategies.EmprestimoStrategy;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -15,23 +23,31 @@ import java.util.List;
 public class EmprestimoService implements IEmprestimoService {
 
     private final EmprestimoRepository emprestimoRepository;
+    private final IUsuarioEmprestimoService usuarioService;
+    private final IEstoqueEmprestimoService estoqueService;
 
-    public EmprestimoService(EmprestimoRepository emprestimoRepository) {
+    public EmprestimoService(EmprestimoRepository emprestimoRepository, IUsuarioEmprestimoService usuarioService, IEstoqueEmprestimoService estoqueService) {
         this.emprestimoRepository = emprestimoRepository;
+        this.usuarioService = usuarioService;
+        this.estoqueService = estoqueService;
     }
 
-    // TODO: Implementar os serviços para buscar os usuários e exemplares para testar validade e salvar.
     @Transactional
     public Emprestimo criarEmprestimo(EmprestimoRequestDTO emprestimoRequestDTO) {
+        try{
+            Usuario usuario = this.usuarioService.pegarUsuarioPorCPF(emprestimoRequestDTO.cpfUsuario());
+            EmprestimoStrategy strategy = usuario.getEmprestimoStrategy();
+            Estoque estoque = this.estoqueService.pegarUmExemplarDisponivel(emprestimoRequestDTO.livroISBN());
+            Emprestimo emprestimo = strategy.pegarEmprestimo(estoque);
 
-        Usuario usuario = new Usuario();
-        Estoque estoque = new Estoque();
 
-        LocalDateTime dataDevolucao = LocalDateTime.now();
 
-        Emprestimo emprestimo = new Emprestimo(usuario, estoque, dataDevolucao);
+            if(strategy.pegarLimiteEmprestimos() < 3){}
 
-        return this.emprestimoRepository.save(emprestimo);
+            return this.emprestimoRepository.save(emprestimo);
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
     }
 
     // TODO: Tratar melhor os resultados negativos
@@ -65,5 +81,11 @@ public class EmprestimoService implements IEmprestimoService {
             return true;
         }
         return false;
+    }
+
+    private void verifyEmprestimo(Emprestimo emprestimo) {
+        if(emprestimo.getUsuario().getStatus() == Status.Inactive) {
+            throw new EmprestimoInvalido("O usuário está inativado");
+        }
     }
 }
