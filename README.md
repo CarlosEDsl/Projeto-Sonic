@@ -6,6 +6,7 @@ Observação: a aplicação usa H2 em memória por padrão e já vem com scripts
 
 ## Sumário
 - Como executar
+- SOLID aplicado no projeto
 - Documentação interativa (Swagger)
 - Convenções gerais da API
 - Endpoints
@@ -30,6 +31,18 @@ Requisitos: Java 17+ e Maven.
    - spring.jpa.hibernate.ddl-auto=create-drop
    - spring.sql.init.mode=always (executa schema.sql e data.sql)
    - server.port=8090
+
+## SOLID aplicado no projeto
+
+- SRP (Single Responsibility Principle): aqui a ideia é simples — cada classe faz uma coisa. Os controladores cuidam das rotas, os serviços da lógica, os repositórios do banco, os validators das checagens e os mappers das conversões. Isso ajuda a entender e arrumar partes do sistema sem bagunçar o resto.
+
+- OCP (Open/Closed Principle): o código foi pensado pra crescer sem precisar reescrever tudo. Um exemplo prático é como as regras de empréstimo mudam conforme o tipo de usuário: cada comportamento fica em uma "estratégia" separada. Quer adicionar um tipo novo? Cria a estratégia e pronto — não precisa mexer na lógica que orquestra o empréstimo.
+
+- LSP (Liskov Substitution Principle): na prática, isso significa que objetos especializados podem ser usados onde o genérico é esperado sem causar erros. No projeto, o serviço de empréstimo trata usuários de forma genérica porque cada tipo implementa a mesma interface/contrato (ou comportamento esperado).
+
+- ISP (Interface Segregation Principle): preferimos interfaces pequenas e específicas. Em vez de uma classe gigante com vários métodos misturados, temos interfaces focadas — cada consumidor depende só do que precisa, sem métodos inúteis.
+
+- DIP (Dependency Inversion Principle): o código depende mais de abstrações (interfaces) do que de implementações. Os controladores recebem serviços por injeção, e isso facilita trocar uma implementação por um mock nos testes ou por outra versão sem mudar quem usa esse serviço.
 
 ## Documentação interativa (Swagger)
 
