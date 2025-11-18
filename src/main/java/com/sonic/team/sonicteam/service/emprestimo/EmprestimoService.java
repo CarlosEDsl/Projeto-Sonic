@@ -2,6 +2,7 @@ package com.sonic.team.sonicteam.service.emprestimo;
 
 import com.sonic.team.sonicteam.exception.EmprestimoInvalido;
 import com.sonic.team.sonicteam.model.DTO.Emprestimo.EmprestimoRequestDTO;
+import com.sonic.team.sonicteam.model.DTO.Estoque.AtualizarEstoqueResquestDTO;
 import com.sonic.team.sonicteam.model.Emprestimo;
 import com.sonic.team.sonicteam.model.Estoque;
 import com.sonic.team.sonicteam.model.usuario.StatusUsuario;
@@ -57,10 +58,18 @@ public class EmprestimoService implements IEmprestimoService {
 
     @Transactional
     public Emprestimo devolverEmprestimo(Long id) {
-        Emprestimo emprestimo = this.buscarEmprestimoPorId(id);
-        emprestimo.setDataEntrega(LocalDateTime.now());
+        try{
+            Emprestimo emprestimo = this.buscarEmprestimoPorId(id);
+            emprestimo.setDataEntrega(LocalDateTime.now());
 
-        return this.emprestimoRepository.save(emprestimo);
+            this.estoqueService.atualizarDisponibilidadeExemplar(
+                    new AtualizarEstoqueResquestDTO(emprestimo.getEstoque().getId(), true)
+            );
+
+            return this.emprestimoRepository.save(emprestimo);
+        } catch (Exception e) {
+            throw e;
+        }
     }
 
     @Transactional(readOnly = true)

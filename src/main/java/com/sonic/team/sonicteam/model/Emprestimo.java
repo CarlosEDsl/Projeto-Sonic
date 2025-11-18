@@ -71,7 +71,8 @@ public class Emprestimo {
                 livroIsbn,
                 estoqueId,
                 this.dataEmprestimo,
-                this.dataDevolucao
+                this.dataDevolucao,
+                this.dataEntrega
         );
     }
 }
