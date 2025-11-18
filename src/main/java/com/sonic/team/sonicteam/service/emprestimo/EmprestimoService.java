@@ -76,7 +76,7 @@ public class EmprestimoService implements IEmprestimoService {
                 || emprestimo.getUsuario().getStatus() == StatusUsuario.SUSPENSO) {
             throw new EmprestimoInvalido("O usuário está inativado");
         }
-        if(quantidadeEmprestimosAtivos < limiteEmprestimos) {
+        if(quantidadeEmprestimosAtivos + 1 > limiteEmprestimos) {
             throw new EmprestimoInvalido("O usuário está tentando pegar mais livros do que é permitido");
         }
     }
