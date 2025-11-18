@@ -11,6 +11,9 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
+//Princípios: SRP (controlador só lida com HTTP/DTOs) e DIP (dependem de interfaces/serviços).
+//Controller: expõe a API e delega toda lógica para serviços, mantendo a camada de transporte separada da lógica de negócio.
+
 @RestController
 @RequestMapping("/emprestimos")
 public class EmprestimoController {
