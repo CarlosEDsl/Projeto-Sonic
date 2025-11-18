@@ -40,9 +40,15 @@ public class EstoqueService implements IEstoqueService, IEstoqueEmprestimoServic
 
     @Override
     public List<EstoqueResponseDTO> getExemplaresDisponiveis(String livroIsbn) {
-        if(livroIsbn.isEmpty() || livroIsbn.isBlank()) return EstoqueMapper.ToListResponseDTO(estoqueRepository.findAllByDisponivelIsTrue());
+        if (livroIsbn == null || livroIsbn.isBlank()) {
+            return EstoqueMapper.ToListResponseDTO(
+                    estoqueRepository.findAllByDisponivelIsTrue()
+            );
+        }
 
-        return EstoqueMapper.ToListResponseDTO(estoqueRepository.findAllByDisponivelIsTrueAndLivroIsbn(livroIsbn));
+        return EstoqueMapper.ToListResponseDTO(
+                estoqueRepository.findAllByDisponivelIsTrueAndLivroIsbn(livroIsbn)
+        );
     }
 
     @Override

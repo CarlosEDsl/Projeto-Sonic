@@ -18,6 +18,7 @@ public class Estoque {
     @JoinColumn(name = "livro_isbn")
     private Livro livro;
 
+    @Column
     private Boolean disponivel = true;
 
     public Estoque(Livro livro) {

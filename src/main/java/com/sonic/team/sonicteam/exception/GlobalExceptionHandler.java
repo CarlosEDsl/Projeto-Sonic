@@ -22,6 +22,13 @@ public class GlobalExceptionHandler {
                 .body(ex.getMessage());
     }
 
+    @ExceptionHandler(ExemplarNaoEstaDisponivelException.class)
+    public ResponseEntity<?> handleExemplarNaoEstaDisponivel(ExemplarNaoEstaDisponivelException ex) {
+        return ResponseEntity
+                .status(HttpStatus.BAD_REQUEST)
+                .body(ex.getMessage());
+    }
+
     @ExceptionHandler(MethodArgumentNotValidException.class)
     public ResponseEntity<?> handleValidationErrors(MethodArgumentNotValidException ex) {
 
