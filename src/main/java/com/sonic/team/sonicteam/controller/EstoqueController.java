@@ -4,6 +4,7 @@ import com.sonic.team.sonicteam.model.DTO.Estoque.AtualizarEstoqueResquestDTO;
 import com.sonic.team.sonicteam.model.DTO.Estoque.EstoqueRequestDTO;
 import com.sonic.team.sonicteam.model.DTO.Estoque.EstoqueResponseDTO;
 import com.sonic.team.sonicteam.service.estoque.IEstoqueService;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -21,7 +22,7 @@ public class EstoqueController {
     @PostMapping("")
     public ResponseEntity<EstoqueResponseDTO> cadastrarExemplar(@RequestBody EstoqueRequestDTO request) {
         var novoExemplar = estoqueService.cadastrarNovoExemplar(request);
-        return ResponseEntity.ok(novoExemplar);
+        return ResponseEntity.status(HttpStatus.CREATED).body(novoExemplar);
     }
 
     @GetMapping("/disponiveis")
