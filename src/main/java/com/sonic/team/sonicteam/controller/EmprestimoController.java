@@ -1,5 +1,6 @@
 package com.sonic.team.sonicteam.controller;
 
+import com.sonic.team.sonicteam.model.DTO.Emprestimo.EmprestimoResponseDTO;
 import com.sonic.team.sonicteam.model.Emprestimo;
 import com.sonic.team.sonicteam.model.DTO.Emprestimo.EmprestimoRequestDTO;
 import com.sonic.team.sonicteam.service.emprestimo.IEmprestimoService;
@@ -21,23 +22,26 @@ public class EmprestimoController {
     }
 
     @PostMapping
-    public ResponseEntity<Emprestimo> criar(@Valid @RequestBody EmprestimoRequestDTO request) {
+    public ResponseEntity<EmprestimoResponseDTO> criar(@Valid @RequestBody EmprestimoRequestDTO request) {
         Emprestimo criado = emprestimoService.criarEmprestimo(request);
-        return ResponseEntity.status(HttpStatus.CREATED).body(criado);
+        return ResponseEntity.status(HttpStatus.CREATED).body(criado.toResponseDTO());
     }
 
     @GetMapping
-    public ResponseEntity<List<Emprestimo>> listar() {
-        return ResponseEntity.ok(emprestimoService.listarEmprestimos());
+    public ResponseEntity<List<EmprestimoResponseDTO>> listar() {
+        List<Emprestimo> emprestimos = emprestimoService.listarEmprestimos();
+        List<EmprestimoResponseDTO> response = emprestimos.stream()
+                .map(Emprestimo::toResponseDTO).toList();
+        return ResponseEntity.ok(response);
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<Emprestimo> buscar(@PathVariable Long id) {
+    public ResponseEntity<EmprestimoResponseDTO> buscar(@PathVariable Long id) {
         Emprestimo encontrado = emprestimoService.buscarEmprestimoPorId(id);
         if (encontrado == null) {
             return ResponseEntity.notFound().build();
         }
-        return ResponseEntity.ok(encontrado);
+        return ResponseEntity.ok(encontrado.toResponseDTO());
     }
 
     @PutMapping("/{id}/devolucao")

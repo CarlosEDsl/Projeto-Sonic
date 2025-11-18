@@ -80,8 +80,9 @@ public class EstoqueService implements IEstoqueService, IEstoqueEmprestimoServic
 
     public Estoque pegarUmExemplarDisponivel(String livroISBN) {
         try{
-            Estoque estoque = this.estoqueRepository.getFirstByLivroIsbn(livroISBN);
+            Estoque estoque = this.estoqueRepository.getFirstByLivroIsbnAndDisponivelIsTrue(livroISBN);
             if(estoque.getDisponivel()) {
+                this.atualizarDisponibilidadeExemplar(new AtualizarEstoqueResquestDTO(estoque.getId(), false));
                 return estoque;
             }
             else throw new ExemplarNaoEstaDisponivelException(0L);
