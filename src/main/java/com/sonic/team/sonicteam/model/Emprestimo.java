@@ -38,5 +38,8 @@ public class Emprestimo {
     @Column
     private LocalDateTime dataDevolucao;
 
+    @Column
     private LocalDateTime dataEntrega;
+
+
 }

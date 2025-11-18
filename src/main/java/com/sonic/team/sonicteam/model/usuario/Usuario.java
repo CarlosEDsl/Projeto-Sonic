@@ -8,6 +8,8 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.time.LocalDateTime;
+
 @Entity
 @Data
 @AllArgsConstructor
@@ -42,6 +44,9 @@ public abstract class Usuario {
     @ManyToOne(optional = false, fetch = FetchType.LAZY)
     @JoinColumn(name = "curso_id")
     private Curso curso;
+
+    @Column
+    private LocalDateTime suspensoAte;
 
     public abstract EmprestimoStrategy getEmprestimoStrategy();
     
