@@ -10,6 +10,9 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
+//Princípios: SRP (tratamento de erros numa única peça) e DIP (camadas superiores lançam exceções; handler traduz para HTTP).
+//Handler global: converte exceções do domínio em respostas HTTP consistentes, preservando a separação entre lógica e tratamento de erro na API.
+
 @RestControllerAdvice
 public class GlobalExceptionHandler {
     @ExceptionHandler(RecursoNaoEncontradoException.class)

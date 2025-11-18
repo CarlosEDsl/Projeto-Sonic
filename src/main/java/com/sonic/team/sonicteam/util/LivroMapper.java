@@ -4,6 +4,8 @@ import com.sonic.team.sonicteam.model.DTO.Livro.LivroRequestDTO;
 import com.sonic.team.sonicteam.model.DTO.Livro.LivroResponseDTO;
 import com.sonic.team.sonicteam.model.Livro;
 
+//Princípios: SRP (conversão separada), DIP (serviços podem receber DTOs/entidades sem conhecer como a conversão é feita).
+//Mappers: responsabilidade única de converter entre DTOs e entidades. Mantêm controladores/serviços livres de código de mapeamento.
 public class LivroMapper {
 
         public static Livro toEntity(LivroRequestDTO dto) {

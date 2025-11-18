@@ -10,6 +10,9 @@ import lombok.NoArgsConstructor;
 
 import java.time.LocalDateTime;
 
+//Princípios: DIP/LSP (uso de abstração para obter comportamento sem conhecer a implementação concreta).
+//A entidade expõe um contrato para obter a estratégia de empréstimo — a lógica concreta fica na subclasse, permitindo o uso polimórfico pelo serviço de empréstimos.
+
 @Entity
 @Data
 @AllArgsConstructor

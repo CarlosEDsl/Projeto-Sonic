@@ -17,6 +17,8 @@ import org.springframework.transaction.annotation.Transactional;
 import java.time.LocalDateTime;
 import java.util.List;
 
+//Princípios: SRP (explicar responsabilidade), DIP (depende de interfaces IUsuarioEmprestimoService e IEstoqueEmprestimoService) e OCP (usa estratégias de empréstimo).
+//Esta classe orquestra o fluxo de empréstimo — delega verificação de usuário/exemplar para serviços abstratos e usa a estratégia do usuário para criar o empréstimo. Mantemos aqui a coordenação (não a lógica detalhada), o que facilita testar e trocar implementações.
 @Service
 public class EmprestimoService implements IEmprestimoService {
 

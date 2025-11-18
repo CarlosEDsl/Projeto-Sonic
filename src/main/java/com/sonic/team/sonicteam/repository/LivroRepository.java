@@ -9,6 +9,9 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 
+//Princípios: ISP (repositório expõe operações focadas) e DIP (serviços dependem da abstração do repositório).
+//Repositório JPA com métodos específicos para buscas/validações — abstrai acesso ao banco e mantém a lógica de consulta separada da lógica de negócio.
+
 @Repository
 public interface LivroRepository extends JpaRepository<Livro,String> {
     boolean existsByAutorAndEditoraAndEdicao(String autor, String editora, String edicao);

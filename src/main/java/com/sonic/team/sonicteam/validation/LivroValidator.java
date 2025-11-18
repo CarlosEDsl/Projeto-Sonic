@@ -10,6 +10,9 @@ import com.sonic.team.sonicteam.repository.LivroRepository;
 
 import java.util.Arrays;
 
+//Princípios: SRP (validação isolada) e ISP (métodos focados em validações específicas).
+//Classes de validação: responsáveis apenas por checar regras de negócio/entrada antes de persistir ou alterar entidades — isso mantém serviços mais limpos.
+
 @Component
 public class LivroValidator {
 
