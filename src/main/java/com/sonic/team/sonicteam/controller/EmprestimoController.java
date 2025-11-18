@@ -45,11 +45,11 @@ public class EmprestimoController {
     }
 
     @PutMapping("/{id}/devolucao")
-    public ResponseEntity<Emprestimo> atualizar(
+    public ResponseEntity<EmprestimoResponseDTO> atualizar(
             @PathVariable Long id
     ) {
         Emprestimo atualizado = emprestimoService.devolverEmprestimo(id);
-        return ResponseEntity.ok(atualizado);
+        return ResponseEntity.ok(atualizado.toResponseDTO());
     }
 
 }

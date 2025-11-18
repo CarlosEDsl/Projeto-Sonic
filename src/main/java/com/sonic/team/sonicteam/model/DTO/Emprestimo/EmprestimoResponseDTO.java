@@ -11,5 +11,6 @@ public record EmprestimoResponseDTO(
         String livroIsbn,
         Long estoqueId,
         LocalDateTime dataEmprestimo,
-        LocalDateTime dataDevolucaoPrevista
+        LocalDateTime dataDevolucaoPrevista,
+        LocalDateTime dataDevolucao
 ) {}
