@@ -19,8 +19,8 @@ import com.sonic.team.sonicteam.repository.EmprestimoRepository;
 import com.sonic.team.sonicteam.repository.UsuarioRepository;
 import com.sonic.team.sonicteam.service.curso.ICursoService;
 import com.sonic.team.sonicteam.service.catalogo.ICategoriaUsuarioService;
+import com.sonic.team.sonicteam.util.ConstantesUsuario;
 import com.sonic.team.sonicteam.util.CpfUtil;
-import com.sonic.team.sonicteam.util.MensagensUsuario;
 
 import jakarta.persistence.criteria.Predicate;
 import org.springframework.data.domain.Page;
@@ -64,7 +64,7 @@ public class UsuarioService implements IUsuarioService, IUsuarioEmprestimoServic
         String cpf = cpfUtil.normalize(dto.getCpf());
 
         if (usuarioRepository.existsByCpf(cpf)) {
-            throw new ConflitoNegocioException(MensagensUsuario.CPF_DUPLICADO);
+            throw new ConflitoNegocioException(ConstantesUsuario.CPF_DUPLICADO);
         }
 
         CategoriaUsuario categoria = categoriaUsuarioService.buscarPorId(dto.getCategoriaId());
@@ -96,7 +96,7 @@ public class UsuarioService implements IUsuarioService, IUsuarioEmprestimoServic
     public UsuarioResponseDTO buscarPorCpf(String cpf) {
         String cpfNormalizado = cpfUtil.normalize(cpf);
         Usuario usuario = usuarioRepository.findByCpf(cpfNormalizado)
-                .orElseThrow(() -> new DadoInvalidoException(MensagensUsuario.USUARIO_NAO_ENCONTRADO));
+                .orElseThrow(() -> new DadoInvalidoException(ConstantesUsuario.USUARIO_NAO_ENCONTRADO));
         return usuarioMapper.toResponseDTO(usuario);
     }
 
@@ -106,7 +106,7 @@ public class UsuarioService implements IUsuarioService, IUsuarioEmprestimoServic
         String cpfDto = cpfUtil.normalize(dto.getCpf());
 
         if (!cpf.equals(cpfDto)) {
-            throw new DadoInvalidoException(MensagensUsuario.CPF_NAO_PODE_SER_ALTERADO);
+            throw new DadoInvalidoException(ConstantesUsuario.CPF_NAO_PODE_SER_ALTERADO);
         }
 
         Usuario usuario = buscarUsuarioPorCpfNormalizado(cpf);
@@ -117,12 +117,12 @@ public class UsuarioService implements IUsuarioService, IUsuarioEmprestimoServic
             tipoDto = TipoUsuario.fromString(dto.getTipo());
         } catch (IllegalArgumentException e) {
             throw new DadoInvalidoException(
-                String.format(MensagensUsuario.TIPO_USUARIO_INVALIDO, dto.getTipo())
+                String.format(ConstantesUsuario.TIPO_USUARIO_INVALIDO, dto.getTipo())
             );
         }
         
         if (tipoAtual != tipoDto) {
-            throw new DadoInvalidoException(MensagensUsuario.TIPO_USUARIO_NAO_PODE_SER_ALTERADO);
+            throw new DadoInvalidoException(ConstantesUsuario.TIPO_USUARIO_NAO_PODE_SER_ALTERADO);
         }
 
         CategoriaUsuario categoria = categoriaUsuarioService.buscarPorId(dto.getCategoriaId());
@@ -146,7 +146,7 @@ public class UsuarioService implements IUsuarioService, IUsuarioEmprestimoServic
             .countByUsuarioIdAndDataEntregaIsNull(usuario.getId());
         
         if (emprestimosAtivos > 0) {
-            throw new ConflitoNegocioException(MensagensUsuario.USUARIO_COM_EMPRESTIMOS_PENDENTES);
+            throw new ConflitoNegocioException(ConstantesUsuario.USUARIO_COM_EMPRESTIMOS_PENDENTES);
         }
         
         usuarioRepository.delete(usuario);
@@ -160,21 +160,21 @@ public class UsuarioService implements IUsuarioService, IUsuarioEmprestimoServic
     @Transactional
     public UsuarioResponseDTO suspender(String cpf, String motivo) {
         Usuario usuario = buscarUsuarioPorCpfNormalizado(cpf);
-        Usuario atualizado = alterarStatus(usuario, StatusUsuario.SUSPENSO, MensagensUsuario.USUARIO_JA_SUSPENSO);
+        Usuario atualizado = alterarStatus(usuario, StatusUsuario.SUSPENSO, ConstantesUsuario.USUARIO_JA_SUSPENSO);
         return usuarioMapper.toResponseDTO(atualizado);
     }
 
     @Transactional
     public UsuarioResponseDTO reativar(String cpf) {
         Usuario usuario = buscarUsuarioPorCpfNormalizado(cpf);
-        Usuario atualizado = alterarStatus(usuario, StatusUsuario.ATIVO, MensagensUsuario.USUARIO_JA_ATIVO);
+        Usuario atualizado = alterarStatus(usuario, StatusUsuario.ATIVO, ConstantesUsuario.USUARIO_JA_ATIVO);
         return usuarioMapper.toResponseDTO(atualizado);
     }
 
     @Transactional
     public UsuarioResponseDTO inativar(String cpf) {
         Usuario usuario = buscarUsuarioPorCpfNormalizado(cpf);
-        Usuario atualizado = alterarStatus(usuario, StatusUsuario.INATIVO, MensagensUsuario.USUARIO_JA_INATIVO);
+        Usuario atualizado = alterarStatus(usuario, StatusUsuario.INATIVO, ConstantesUsuario.USUARIO_JA_INATIVO);
         return usuarioMapper.toResponseDTO(atualizado);
     }
 
@@ -188,7 +188,7 @@ public class UsuarioService implements IUsuarioService, IUsuarioEmprestimoServic
     private Usuario buscarUsuarioPorCpfNormalizado(String cpf) {
         String cpfNormalizado = cpfUtil.normalize(cpf);
         return usuarioRepository.findByCpf(cpfNormalizado)
-                .orElseThrow(() -> new DadoInvalidoException(MensagensUsuario.USUARIO_NAO_ENCONTRADO));
+                .orElseThrow(() -> new DadoInvalidoException(ConstantesUsuario.USUARIO_NAO_ENCONTRADO));
     }
 
     private Usuario alterarStatus(Usuario usuario, StatusUsuario novoStatus, String mensagemJaNoStatus) {

@@ -4,7 +4,7 @@ import com.sonic.team.sonicteam.exception.DadoInvalidoException;
 import com.sonic.team.sonicteam.exception.RecursoNaoEncontradoException;
 import com.sonic.team.sonicteam.model.Curso;
 import com.sonic.team.sonicteam.repository.CursoRepository;
-import com.sonic.team.sonicteam.util.MensagensUsuario;
+import com.sonic.team.sonicteam.util.ConstantesUsuario;
 import java.util.List;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -21,7 +21,7 @@ public class CursoService implements ICursoService {
     @Transactional(readOnly = true)
     public Curso buscarPorId(Long id) {
         return cursoRepository.findById(id)
-                .orElseThrow(() -> new DadoInvalidoException(MensagensUsuario.CURSO_INEXISTENTE));
+                .orElseThrow(() -> new DadoInvalidoException(ConstantesUsuario.CURSO_INEXISTENTE));
     }
 
     @Transactional(readOnly = true)
