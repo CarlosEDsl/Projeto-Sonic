@@ -4,7 +4,6 @@ import com.sonic.team.sonicteam.model.Emprestimo;
 import com.sonic.team.sonicteam.model.Estoque;
 import com.sonic.team.sonicteam.model.Livro;
 import com.sonic.team.sonicteam.model.usuario.Aluno;
-import com.sonic.team.sonicteam.model.usuario.Usuario;
 
 import java.time.LocalDateTime;
 
@@ -15,7 +14,7 @@ public class AlunoEmprestimoStrategy extends BaseStrategy<Aluno> {
     private static final int LIMITE_EMPRESTIMOS = 3;
 
     public AlunoEmprestimoStrategy(Aluno entity) {
-        super(entity);
+        super(entity, LIMITE_EMPRESTIMOS);
     }
 
     @Override
@@ -26,31 +25,18 @@ public class AlunoEmprestimoStrategy extends BaseStrategy<Aluno> {
         emprestimo.setEstoque(estoque);
         emprestimo.setUsuario(this.getEntity());
         emprestimo.setDataEmprestimo(LocalDateTime.now());
-
-        LocalDateTime prazo = calcularPrazo(livro);
-        emprestimo.setDataDevolucao(prazo);
+        emprestimo.setDataDevolucao(calcularPrazo(livro));
 
         return emprestimo;
     }
 
     @Override
     public LocalDateTime calcularPrazo(Livro livro) {
-        int dias;
-        if (isLivroDaArea(livro)) {
-            dias = PRAZO_AREA_CURSO_DIAS;
-        } else {
-            dias = PRAZO_PADRAO_DIAS;
-        }
+        int dias = isLivroDaArea(livro) ? PRAZO_AREA_CURSO_DIAS : PRAZO_PADRAO_DIAS;
         return LocalDateTime.now().plusDays(dias);
     }
 
-    public int pegarLimiteEmprestimos() {
-        return LIMITE_EMPRESTIMOS;
-    }
-
     private boolean isLivroDaArea(Livro livro) {
-        Usuario usuario = this.getEntity();
-
-        return usuario.getCategoria().equals(livro.getCategoriaLivro().toString());
+        return getEntity().getCategoria().getNome().equals(livro.getCategoriaLivro().toString());
     }
 }

@@ -13,7 +13,7 @@ public class ProfessorEmprestimoStrategy extends BaseStrategy<Professor> {
     private static final int LIMITE_EMPRESTIMOS = 5;
 
     public ProfessorEmprestimoStrategy(Professor entity) {
-        super(entity);
+        super(entity, LIMITE_EMPRESTIMOS);
     }
 
     @Override
@@ -21,7 +21,7 @@ public class ProfessorEmprestimoStrategy extends BaseStrategy<Professor> {
         Emprestimo emprestimo = new Emprestimo();
         emprestimo.setEstoque(estoque);
         emprestimo.setDataEmprestimo(LocalDateTime.now());
-        emprestimo.setDataDevolucao(LocalDateTime.now().plusDays(PRAZO_DIAS));
+        emprestimo.setDataDevolucao(calcularPrazo(estoque.getLivro()));
         emprestimo.setUsuario(this.getEntity());
 
         return emprestimo;
@@ -29,10 +29,6 @@ public class ProfessorEmprestimoStrategy extends BaseStrategy<Professor> {
 
     @Override
     public LocalDateTime calcularPrazo(Livro livro) {
-        return LocalDateTime.now().plusDays(40);
-    }
-
-    public int pegarLimiteEmprestimos() {
-        return LIMITE_EMPRESTIMOS;
+        return LocalDateTime.now().plusDays(PRAZO_DIAS);
     }
 }
