@@ -15,21 +15,26 @@ import java.util.List;
 
 @Service
 public class LivroService implements ILivroService {
-    private LivroRepository livroRepository;
-    private LivroValidator livroValidator;
+    
+    private final LivroRepository livroRepository;
+    private final LivroValidator livroValidator;
+    private final LivroMapper livroMapper;
 
-    public LivroService(LivroRepository livroRepository, LivroValidator livroValidator) {
+    public LivroService(LivroRepository livroRepository, 
+                       LivroValidator livroValidator,
+                       LivroMapper livroMapper) {
         this.livroRepository = livroRepository;
         this.livroValidator = livroValidator;
+        this.livroMapper = livroMapper;
     }
 
     @Override
     @Transactional
     public LivroResponseDTO criarLivro(LivroRequestDTO dto) {
-        Livro livro = LivroMapper.toEntity(dto); // já vem com categoria ENUM
+        Livro livro = livroMapper.paraEntidade(dto);
         livroValidator.validarCadastro(livro);
         livroRepository.save(livro);
-        return LivroMapper.toResponse(livro);
+        return livroMapper.paraResponse(livro);
     }
 
     @Override
@@ -45,48 +50,48 @@ public class LivroService implements ILivroService {
     @Override
     @Transactional
     public LivroResponseDTO atualizarLivro(String id, LivroRequestDTO dto) {
-        if(id == null || id.isBlank()) {
+        if (id == null || id.isBlank()) {
             throw new IllegalArgumentException("ID inválido.");
         }
 
         Livro livroExiste = livroRepository.findById(id).orElse(null);
-        if(livroExiste == null) {
+        if (livroExiste == null) {
             throw new RecursoNaoEncontradoException("Livro não encontrado.");
         }
 
-        Livro livroAtualizado = LivroMapper.toEntity(dto);
+        Livro livroAtualizado = livroMapper.paraEntidade(dto);
         livroAtualizado.setIsbn(id);
 
         livroValidator.validarAtualizacao(livroAtualizado);
         livroRepository.save(livroAtualizado);
 
-        return LivroMapper.toResponse(livroAtualizado);
+        return livroMapper.paraResponse(livroAtualizado);
     }
 
     @Override
     @Transactional
     public void excluirLivro(String id) {
-
         if (id == null || id.isBlank()) {
             throw new IllegalArgumentException("ID inválido.");
         }
 
-        Livro livro = livroRepository.findById(id).orElseThrow(() -> new RecursoNaoEncontradoException("Livro não encontrado."));
+        Livro livro = livroRepository.findById(id)
+            .orElseThrow(() -> new RecursoNaoEncontradoException("Livro não encontrado."));
 
         livroValidator.validarRemocao(livro);
         livroRepository.delete(livro);
     }
 
     @Override
-    @Transactional
+    @Transactional(readOnly = true)
     public LivroResponseDTO buscarLivroPorISBN(String id) {
-        if(id == null || id.isBlank() || id.length() > 10 && id.length() < 13) {
+        if (id == null || id.isBlank() || id.length() > 10 && id.length() < 13) {
             throw new IllegalArgumentException("ID inválido.");
         }
-        return LivroMapper.toResponse(livroRepository.findById(id).orElseThrow(() -> new RecursoNaoEncontradoException("Livro não encontrado.")));
+        Livro livro = livroRepository.findById(id)
+            .orElseThrow(() -> new RecursoNaoEncontradoException("Livro não encontrado."));
+        return livroMapper.paraResponse(livro);
     }
-
-
 
     private boolean todosFiltrosVazios(String titulo, String autor, String editora, String edicao, String categoria) {
         return (titulo == null || titulo.isBlank()) &&
@@ -96,11 +101,10 @@ public class LivroService implements ILivroService {
                 (categoria == null || categoria.isBlank());
     }
 
-
     private List<LivroResponseDTO> buscarTodosLivros() {
         return livroRepository.findAll()
                 .stream()
-                .map(LivroMapper::toResponse)
+                .map(livroMapper::paraResponse)
                 .toList();
     }
 
@@ -111,7 +115,7 @@ public class LivroService implements ILivroService {
         List<Livro> livros = livroRepository.buscarComFiltros(titulo, autor, editora, edicaoInt, categoriaEnum);
 
         return livros.stream()
-                .map(LivroMapper::toResponse)
+                .map(livroMapper::paraResponse)
                 .toList();
     }
 
@@ -139,3 +143,4 @@ public class LivroService implements ILivroService {
         }
     }
 }
+
