@@ -6,97 +6,100 @@ import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
-import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
-//Princípios: SRP (tratamento de erros numa única peça) e DIP (camadas superiores lançam exceções; handler traduz para HTTP).
-//Handler global: converte exceções do domínio em respostas HTTP consistentes, preservando a separação entre lógica e tratamento de erro na API.
-
 @RestControllerAdvice
 public class GlobalExceptionHandler {
+
     @ExceptionHandler(RecursoNaoEncontradoException.class)
-    public ResponseEntity<?> handleRecursoNaoEncontrado(RecursoNaoEncontradoException ex) {
-        return ResponseEntity
-                .status(HttpStatus.NOT_FOUND)
-                .body(ex.getMessage());
+    public ResponseEntity<ErroResponse> handleRecursoNaoEncontrado(RecursoNaoEncontradoException ex) {
+        ErroResponse response = ErroResponse.builder()
+                .status(HttpStatus.NOT_FOUND.value())
+                .erro("Recurso não encontrado")
+                .mensagem(ex.getMessage())
+                .build();
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
     }
 
     @ExceptionHandler(ExemplarNaoEstaDisponivelException.class)
-    public ResponseEntity<?> handleExemplarNaoEstaDisponivel(ExemplarNaoEstaDisponivelException ex) {
-        return ResponseEntity
-                .status(HttpStatus.BAD_REQUEST)
-                .body(ex.getMessage());
+    public ResponseEntity<ErroResponse> handleExemplarNaoEstaDisponivel(ExemplarNaoEstaDisponivelException ex) {
+        ErroResponse response = ErroResponse.builder()
+                .status(HttpStatus.BAD_REQUEST.value())
+                .erro("Exemplar indisponível")
+                .mensagem(ex.getMessage())
+                .build();
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
     }
 
     @ExceptionHandler(MethodArgumentNotValidException.class)
-    public ResponseEntity<?> handleValidationErrors(MethodArgumentNotValidException ex) {
-
-        Map<String, Object> body = new LinkedHashMap<>();
-        body.put("status", HttpStatus.BAD_REQUEST.value());
-        body.put("erro", "Erro de validação nos campos");
-
-
+    public ResponseEntity<ErroResponse> handleValidationErrors(MethodArgumentNotValidException ex) {
         List<Map<String, String>> erros = ex.getBindingResult()
                 .getFieldErrors()
                 .stream()
                 .map(err -> Map.of(
                         "campo", err.getField(),
-                        "mensagem", err.getDefaultMessage()
+                        "mensagem", err.getDefaultMessage() != null ? err.getDefaultMessage() : "Valor inválido"
                 ))
                 .toList();
 
-        body.put("erros", erros);
-
-        return ResponseEntity.badRequest().body(body);
+        ErroResponse response = ErroResponse.builder()
+                .status(HttpStatus.BAD_REQUEST.value())
+                .erro("Erro de validação")
+                .mensagem("Um ou mais campos possuem valores inválidos")
+                .erros(erros)
+                .build();
+        return ResponseEntity.badRequest().body(response);
     }
 
     @ExceptionHandler(RecursoJaExisteException.class)
-    public ResponseEntity<?> handleRecursoJaExiste(RecursoJaExisteException ex) {
-        Map<String, Object> body = new LinkedHashMap<>();
-        body.put("status", HttpStatus.CONFLICT.value());
-        body.put("erro", "Conflito de dados");
-        body.put("mensagem", ex.getMessage());
-        return ResponseEntity.status(HttpStatus.CONFLICT).body(body);
+    public ResponseEntity<ErroResponse> handleRecursoJaExiste(RecursoJaExisteException ex) {
+        ErroResponse response = ErroResponse.builder()
+                .status(HttpStatus.CONFLICT.value())
+                .erro("Conflito de dados")
+                .mensagem(ex.getMessage())
+                .build();
+        return ResponseEntity.status(HttpStatus.CONFLICT).body(response);
     }
 
     @ExceptionHandler(ConflitoNegocioException.class)
-    public ResponseEntity<?> handleConflitoNegocio(ConflitoNegocioException ex) {
-        Map<String, Object> body = new LinkedHashMap<>();
-        body.put("status", HttpStatus.CONFLICT.value());
-        body.put("erro", "Conflito de dados");
-        body.put("mensagem", ex.getMessage());
-        return ResponseEntity.status(HttpStatus.CONFLICT).body(body);
+    public ResponseEntity<ErroResponse> handleConflitoNegocio(ConflitoNegocioException ex) {
+        ErroResponse response = ErroResponse.builder()
+                .status(HttpStatus.CONFLICT.value())
+                .erro("Conflito de negócio")
+                .mensagem(ex.getMessage())
+                .build();
+        return ResponseEntity.status(HttpStatus.CONFLICT).body(response);
     }
 
     @ExceptionHandler(DadoInvalidoException.class)
-    public ResponseEntity<?> handleDadoInvalido(DadoInvalidoException ex) {
-        Map<String, Object> body = new LinkedHashMap<>();
-        body.put("status", HttpStatus.BAD_REQUEST.value());
-        body.put("erro", "Dados inválidos");
-        body.put("mensagem", ex.getMessage());
-        return ResponseEntity.badRequest().body(body);
-    }
-
-    @ExceptionHandler(Exception.class)
-    public ResponseEntity<?> handleUnexpected(Exception ex) {
-        Map<String, Object> body = new LinkedHashMap<>();
-        body.put("status", HttpStatus.INTERNAL_SERVER_ERROR.value());
-        body.put("erro", "Erro interno no servidor");
-        body.put("mensagem", "Ocorreu um erro inesperado. Tente novamente.");
-        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(body);
+    public ResponseEntity<ErroResponse> handleDadoInvalido(DadoInvalidoException ex) {
+        ErroResponse response = ErroResponse.builder()
+                .status(HttpStatus.BAD_REQUEST.value())
+                .erro("Dados inválidos")
+                .mensagem(ex.getMessage())
+                .build();
+        return ResponseEntity.badRequest().body(response);
     }
 
     @ExceptionHandler(EmprestimoInvalido.class)
-    public ResponseEntity<?> handleEmprestimoInvalido(Exception ex) {
-        Map<String, Object> body = new LinkedHashMap<>();
-        body.put("status", HttpStatus.NOT_ACCEPTABLE.value());
-        body.put("erro", "Erro de dado inválido");
-        return ResponseEntity.status(HttpStatus.NOT_ACCEPTABLE).body(body);
+    public ResponseEntity<ErroResponse> handleEmprestimoInvalido(EmprestimoInvalido ex) {
+        ErroResponse response = ErroResponse.builder()
+                .status(HttpStatus.UNPROCESSABLE_ENTITY.value())
+                .erro("Empréstimo inválido")
+                .mensagem(ex.getMessage())
+                .build();
+        return ResponseEntity.status(HttpStatus.UNPROCESSABLE_ENTITY).body(response);
     }
 
-
-
-
-
+    @ExceptionHandler(Exception.class)
+    public ResponseEntity<ErroResponse> handleUnexpected(Exception ex) {
+        ErroResponse response = ErroResponse.builder()
+                .status(HttpStatus.INTERNAL_SERVER_ERROR.value())
+                .erro("Erro interno no servidor")
+                .mensagem("Ocorreu um erro inesperado. Tente novamente.")
+                .build();
+        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
+    }
 }
+

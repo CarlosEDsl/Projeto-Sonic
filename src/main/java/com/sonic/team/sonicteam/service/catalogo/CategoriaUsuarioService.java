@@ -1,4 +1,4 @@
-package com.sonic.team.sonicteam.service.usuario;
+package com.sonic.team.sonicteam.service.catalogo;
 
 import com.sonic.team.sonicteam.exception.DadoInvalidoException;
 import com.sonic.team.sonicteam.exception.RecursoNaoEncontradoException;
@@ -19,17 +19,20 @@ public class CategoriaUsuarioService implements ICategoriaUsuarioService {
         this.categoriaUsuarioRepository = categoriaUsuarioRepository;
     }
 
+    @Override
     @Transactional(readOnly = true)
     public CategoriaUsuario buscarPorId(Long id) {
         return categoriaUsuarioRepository.findById(id)
                 .orElseThrow(() -> new DadoInvalidoException(MensagensUsuario.CATEGORIA_INEXISTENTE));
     }
 
+    @Override
     @Transactional(readOnly = true)
-    public List<CategoriaUsuario> listar(){
-        if(categoriaUsuarioRepository.findAll().isEmpty()){
+    public List<CategoriaUsuario> listar() {
+        List<CategoriaUsuario> categorias = categoriaUsuarioRepository.findAll();
+        if (categorias.isEmpty()) {
             throw new RecursoNaoEncontradoException("Não há nenhuma categoria cadastrada.");
         }
-        return categoriaUsuarioRepository.findAll();
+        return categorias;
     }
 }
