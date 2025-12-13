@@ -1,6 +1,6 @@
 package com.sonic.team.sonicteam.model.usuario;
 
-import com.sonic.team.sonicteam.strategies.EmprestimoStrategy;
+import com.sonic.team.sonicteam.strategies.PoliticaEmprestimo;
 import com.sonic.team.sonicteam.strategies.ProfessorEmprestimoStrategy;
 import jakarta.persistence.DiscriminatorValue;
 import jakarta.persistence.Entity;
@@ -10,7 +10,12 @@ import jakarta.persistence.Entity;
 public class Professor extends Usuario {
 
     @Override
-    public EmprestimoStrategy getEmprestimoStrategy() {
+    public PoliticaEmprestimo getPoliticaEmprestimo() {
         return new ProfessorEmprestimoStrategy(this);
+    }
+    
+    @Override
+    public TipoUsuario getTipoUsuario() {
+        return TipoUsuario.PROFESSOR;
     }
 }

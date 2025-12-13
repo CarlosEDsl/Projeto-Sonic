@@ -2,16 +2,13 @@ package com.sonic.team.sonicteam.model.usuario;
 
 import com.sonic.team.sonicteam.model.Curso;
 import com.sonic.team.sonicteam.model.DTO.Usuario.CategoriaUsuario;
-import com.sonic.team.sonicteam.strategies.EmprestimoStrategy;
+import com.sonic.team.sonicteam.strategies.PoliticaEmprestimo;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.time.LocalDateTime;
-
-//Princípios: DIP/LSP (uso de abstração para obter comportamento sem conhecer a implementação concreta).
-//A entidade expõe um contrato para obter a estratégia de empréstimo — a lógica concreta fica na subclasse, permitindo o uso polimórfico pelo serviço de empréstimos.
 
 @Entity
 @Data
@@ -23,6 +20,7 @@ import java.time.LocalDateTime;
 @Inheritance(strategy = InheritanceType.SINGLE_TABLE)
 @DiscriminatorColumn(name = "tipo", discriminatorType = DiscriminatorType.STRING)
 public abstract class Usuario {
+    
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
@@ -51,20 +49,12 @@ public abstract class Usuario {
     @Column
     private LocalDateTime suspensoAte;
 
-    public abstract EmprestimoStrategy getEmprestimoStrategy();
+    public abstract PoliticaEmprestimo getPoliticaEmprestimo();
+    
+    public abstract TipoUsuario getTipoUsuario();
     
     public boolean isAtivo() {
         return this.status == StatusUsuario.ATIVO;
     }
-    
-    public TipoUsuario getTipoUsuario() {
-        if (this instanceof Aluno) {
-            return TipoUsuario.ALUNO;
-        } else if (this instanceof Professor) {
-            return TipoUsuario.PROFESSOR;
-        } else if (this instanceof Bibliotecario) {
-            return TipoUsuario.BIBLIOTECARIO;
-        }
-        throw new IllegalStateException("Tipo de usuário desconhecido");
-    }
 }
+

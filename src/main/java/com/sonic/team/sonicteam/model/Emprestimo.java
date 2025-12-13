@@ -50,9 +50,6 @@ public class Emprestimo {
                 ? this.usuario.getCategoria().getNome()
                 : null;
 
-        String livroId = (this.estoque != null && this.estoque.getLivro() != null)
-                ? this.estoque.getLivro().getIsbn()
-                : null;
         String livroTitulo = (this.estoque != null && this.estoque.getLivro() != null)
                 ? this.estoque.getLivro().getTitulo()
                 : null;
