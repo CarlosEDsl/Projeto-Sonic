@@ -14,7 +14,7 @@ import com.sonic.team.sonicteam.model.usuario.Usuario;
 
 import com.sonic.team.sonicteam.repository.EmprestimoRepository;
 import com.sonic.team.sonicteam.repository.UsuarioRepository;
-import com.sonic.team.sonicteam.service.CursoService;
+import com.sonic.team.sonicteam.service.ICursoService;
 import com.sonic.team.sonicteam.util.CpfUtil;
 import com.sonic.team.sonicteam.util.MensagensUsuario;
 
@@ -27,19 +27,19 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.List;
 
 @Service
-public class UsuarioService implements IUsuarioEmprestimoService {
+public class UsuarioService implements IUsuarioService, IUsuarioEmprestimoService {
     
     private final UsuarioRepository usuarioRepository;
-    private final CategoriaUsuarioService categoriaUsuarioService;
-    private final CursoService cursoService;
+    private final ICategoriaUsuarioService categoriaUsuarioService;
+    private final ICursoService cursoService;
     private final EmprestimoRepository emprestimoRepository;
     private final CpfUtil cpfUtil;
     private final UsuarioFactory usuarioFactory;
     private final UsuarioMapper usuarioMapper;
 
     public UsuarioService(UsuarioRepository usuarioRepository,
-                          CategoriaUsuarioService categoriaUsuarioService,
-                          CursoService cursoService,
+                          ICategoriaUsuarioService categoriaUsuarioService,
+                          ICursoService cursoService,
                           EmprestimoRepository emprestimoRepository,
                           CpfUtil cpfUtil,
                           UsuarioFactory usuarioFactory,
