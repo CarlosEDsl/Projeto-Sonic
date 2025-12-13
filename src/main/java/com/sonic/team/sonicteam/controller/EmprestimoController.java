@@ -4,6 +4,7 @@ import com.sonic.team.sonicteam.model.DTO.Emprestimo.EmprestimoResponseDTO;
 import com.sonic.team.sonicteam.model.Emprestimo;
 import com.sonic.team.sonicteam.model.DTO.Emprestimo.EmprestimoRequestDTO;
 import com.sonic.team.sonicteam.service.emprestimo.IEmprestimoService;
+import com.sonic.team.sonicteam.util.EmprestimoMapper;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -11,31 +12,29 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
-//Princípios: SRP (controlador só lida com HTTP/DTOs) e DIP (dependem de interfaces/serviços).
-//Controller: expõe a API e delega toda lógica para serviços, mantendo a camada de transporte separada da lógica de negócio.
-
 @RestController
 @RequestMapping("/emprestimos")
 public class EmprestimoController {
 
     private final IEmprestimoService emprestimoService;
+    private final EmprestimoMapper emprestimoMapper;
 
-    public EmprestimoController(IEmprestimoService emprestimoService) {
+    public EmprestimoController(IEmprestimoService emprestimoService, 
+                               EmprestimoMapper emprestimoMapper) {
         this.emprestimoService = emprestimoService;
+        this.emprestimoMapper = emprestimoMapper;
     }
 
     @PostMapping
     public ResponseEntity<EmprestimoResponseDTO> criar(@Valid @RequestBody EmprestimoRequestDTO request) {
         Emprestimo criado = emprestimoService.criarEmprestimo(request);
-        return ResponseEntity.status(HttpStatus.CREATED).body(criado.toResponseDTO());
+        return ResponseEntity.status(HttpStatus.CREATED).body(emprestimoMapper.paraResponse(criado));
     }
 
     @GetMapping
     public ResponseEntity<List<EmprestimoResponseDTO>> listar() {
         List<Emprestimo> emprestimos = emprestimoService.listarEmprestimos();
-        List<EmprestimoResponseDTO> response = emprestimos.stream()
-                .map(Emprestimo::toResponseDTO).toList();
-        return ResponseEntity.ok(response);
+        return ResponseEntity.ok(emprestimoMapper.paraListaResponse(emprestimos));
     }
 
     @GetMapping("/{id}")
@@ -44,15 +43,13 @@ public class EmprestimoController {
         if (encontrado == null) {
             return ResponseEntity.notFound().build();
         }
-        return ResponseEntity.ok(encontrado.toResponseDTO());
+        return ResponseEntity.ok(emprestimoMapper.paraResponse(encontrado));
     }
 
     @PutMapping("/{id}/devolucao")
-    public ResponseEntity<EmprestimoResponseDTO> atualizar(
-            @PathVariable Long id
-    ) {
+    public ResponseEntity<EmprestimoResponseDTO> atualizar(@PathVariable Long id) {
         Emprestimo atualizado = emprestimoService.devolverEmprestimo(id);
-        return ResponseEntity.ok(atualizado.toResponseDTO());
+        return ResponseEntity.ok(emprestimoMapper.paraResponse(atualizado));
     }
-
 }
+
