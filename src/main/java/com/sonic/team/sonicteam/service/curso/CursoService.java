@@ -1,4 +1,4 @@
-package com.sonic.team.sonicteam.service;
+package com.sonic.team.sonicteam.service.curso;
 
 import com.sonic.team.sonicteam.exception.DadoInvalidoException;
 import com.sonic.team.sonicteam.exception.RecursoNaoEncontradoException;

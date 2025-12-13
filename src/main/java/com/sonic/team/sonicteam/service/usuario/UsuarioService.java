@@ -8,22 +8,28 @@ import com.sonic.team.sonicteam.model.DTO.Usuario.CategoriaUsuario;
 import com.sonic.team.sonicteam.model.DTO.Usuario.FiltroUsuarioDTO;
 import com.sonic.team.sonicteam.model.DTO.Usuario.UsuarioRequestDTO;
 import com.sonic.team.sonicteam.model.DTO.Usuario.UsuarioResponseDTO;
+import com.sonic.team.sonicteam.model.usuario.Aluno;
+import com.sonic.team.sonicteam.model.usuario.Bibliotecario;
+import com.sonic.team.sonicteam.model.usuario.Professor;
 import com.sonic.team.sonicteam.model.usuario.StatusUsuario;
 import com.sonic.team.sonicteam.model.usuario.TipoUsuario;
 import com.sonic.team.sonicteam.model.usuario.Usuario;
 
 import com.sonic.team.sonicteam.repository.EmprestimoRepository;
 import com.sonic.team.sonicteam.repository.UsuarioRepository;
-import com.sonic.team.sonicteam.service.ICursoService;
+import com.sonic.team.sonicteam.service.curso.ICursoService;
+import com.sonic.team.sonicteam.service.catalogo.ICategoriaUsuarioService;
 import com.sonic.team.sonicteam.util.CpfUtil;
 import com.sonic.team.sonicteam.util.MensagensUsuario;
 
+import jakarta.persistence.criteria.Predicate;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @Service
@@ -174,9 +180,8 @@ public class UsuarioService implements IUsuarioService, IUsuarioEmprestimoServic
 
     @Transactional(readOnly = true)
     public Page<UsuarioResponseDTO> buscarComFiltros(FiltroUsuarioDTO filtro, Pageable pageable) {
-        Specification<Usuario> spec = UsuarioQueryBuilder.comFiltros(filtro);
+        Specification<Usuario> spec = construirSpecification(filtro);
         Page<Usuario> usuarios = usuarioRepository.findAll(spec, pageable);
-        
         return usuarios.map(usuarioMapper::toResponseDTO);
     }
 
@@ -195,4 +200,49 @@ public class UsuarioService implements IUsuarioService, IUsuarioEmprestimoServic
         usuario.setStatus(novoStatus);
         return usuarioRepository.save(usuario);
     }
+
+    private Specification<Usuario> construirSpecification(FiltroUsuarioDTO filtro) {
+        return (root, query, criteriaBuilder) -> {
+            List<Predicate> predicates = new ArrayList<>();
+
+            if (filtro.getStatus() != null && !filtro.getStatus().isBlank()) {
+                try {
+                    StatusUsuario status = StatusUsuario.valueOf(filtro.getStatus().toUpperCase());
+                    predicates.add(criteriaBuilder.equal(root.get("status"), status));
+                } catch (IllegalArgumentException ignored) {
+                }
+            }
+
+            if (filtro.getTipo() != null && !filtro.getTipo().isBlank()) {
+                try {
+                    TipoUsuario tipo = TipoUsuario.fromString(filtro.getTipo());
+                    Class<? extends Usuario> tipoClasse = switch (tipo) {
+                        case ALUNO -> Aluno.class;
+                        case PROFESSOR -> Professor.class;
+                        case BIBLIOTECARIO -> Bibliotecario.class;
+                    };
+                    predicates.add(criteriaBuilder.equal(root.type(), tipoClasse));
+                } catch (IllegalArgumentException ignored) {
+                }
+            }
+
+            if (filtro.getCategoriaId() != null) {
+                predicates.add(criteriaBuilder.equal(root.get("categoria").get("id"), filtro.getCategoriaId()));
+            }
+
+            if (filtro.getCursoId() != null) {
+                predicates.add(criteriaBuilder.equal(root.get("curso").get("id"), filtro.getCursoId()));
+            }
+
+            if (filtro.getNome() != null && !filtro.getNome().isBlank()) {
+                predicates.add(criteriaBuilder.like(
+                    criteriaBuilder.lower(root.get("nome")),
+                    "%" + filtro.getNome().toLowerCase() + "%"
+                ));
+            }
+
+            return criteriaBuilder.and(predicates.toArray(new Predicate[0]));
+        };
+    }
 }
+
