@@ -3,7 +3,6 @@ package com.sonic.team.sonicteam.service;
 import com.sonic.team.sonicteam.exception.DadoInvalidoException;
 import com.sonic.team.sonicteam.exception.RecursoNaoEncontradoException;
 import com.sonic.team.sonicteam.model.Curso;
-import com.sonic.team.sonicteam.model.DTO.Livro.LivroResponseDTO;
 import com.sonic.team.sonicteam.repository.CursoRepository;
 import com.sonic.team.sonicteam.util.MensagensUsuario;
 import java.util.List;
@@ -11,7 +10,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 @Service
-public class CursoService {
+public class CursoService implements ICursoService {
     
     private final CursoRepository cursoRepository;
 

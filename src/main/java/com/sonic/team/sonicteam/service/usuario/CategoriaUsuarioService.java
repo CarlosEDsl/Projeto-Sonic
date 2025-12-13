@@ -11,7 +11,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.List;
 
 @Service
-public class CategoriaUsuarioService {
+public class CategoriaUsuarioService implements ICategoriaUsuarioService {
     
     private final CategoriaUsuarioRepository categoriaUsuarioRepository;
 

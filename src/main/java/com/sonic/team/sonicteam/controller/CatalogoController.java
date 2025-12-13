@@ -3,8 +3,8 @@ package com.sonic.team.sonicteam.controller;
 import com.sonic.team.sonicteam.model.Curso;
 import com.sonic.team.sonicteam.model.DTO.Usuario.CategoriaUsuario;
 import com.sonic.team.sonicteam.model.catalogos.CategoriaLivro;
-import com.sonic.team.sonicteam.service.CursoService;
-import com.sonic.team.sonicteam.service.usuario.CategoriaUsuarioService;
+import com.sonic.team.sonicteam.service.ICursoService;
+import com.sonic.team.sonicteam.service.usuario.ICategoriaUsuarioService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -16,10 +16,11 @@ import java.util.List;
 @RestController
 @RequestMapping("/catalogos")
 public class CatalogoController {
-    private CategoriaUsuarioService categoriaUsuarioService;
-    private CursoService cursoService;
+    
+    private final ICategoriaUsuarioService categoriaUsuarioService;
+    private final ICursoService cursoService;
 
-    public CatalogoController(CategoriaUsuarioService categoriaUsuarioService, CursoService cursoService){
+    public CatalogoController(ICategoriaUsuarioService categoriaUsuarioService, ICursoService cursoService) {
         this.categoriaUsuarioService = categoriaUsuarioService;
         this.cursoService = cursoService;
     }
