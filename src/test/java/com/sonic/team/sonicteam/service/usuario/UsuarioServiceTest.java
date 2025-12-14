@@ -2,6 +2,7 @@ package com.sonic.team.sonicteam.service.usuario;
 
 import com.sonic.team.sonicteam.exception.ConflitoNegocioException;
 import com.sonic.team.sonicteam.exception.DadoInvalidoException;
+import com.sonic.team.sonicteam.exception.RecursoNaoEncontradoException;
 import com.sonic.team.sonicteam.model.Curso;
 import com.sonic.team.sonicteam.model.DTO.Usuario.CategoriaUsuario;
 import com.sonic.team.sonicteam.model.DTO.Usuario.FiltroUsuarioDTO;
@@ -226,8 +227,8 @@ class UsuarioServiceTest {
         when(cpfUtil.normalize("99999999999")).thenReturn("99999999999");
         when(usuarioRepository.findByCpf("99999999999")).thenReturn(Optional.empty());
 
-        DadoInvalidoException exception = assertThrows(
-                DadoInvalidoException.class,
+        RecursoNaoEncontradoException exception = assertThrows(
+                RecursoNaoEncontradoException.class,
                 () -> usuarioService.buscarPorCpf("99999999999")
         );
 
@@ -284,8 +285,8 @@ class UsuarioServiceTest {
         when(cpfUtil.normalize("12345678901")).thenReturn("12345678901");
         when(usuarioRepository.findByCpf("12345678901")).thenReturn(Optional.empty());
 
-        DadoInvalidoException exception = assertThrows(
-                DadoInvalidoException.class,
+        RecursoNaoEncontradoException exception = assertThrows(
+                RecursoNaoEncontradoException.class,
                 () -> usuarioService.atualizar("12345678901", requestDTO)
         );
 

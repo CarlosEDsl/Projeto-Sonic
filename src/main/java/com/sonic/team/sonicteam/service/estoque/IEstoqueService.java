@@ -7,6 +7,7 @@ import java.util.List;
 
 public interface IEstoqueService {
     EstoqueResponseDTO cadastrarNovoExemplar(EstoqueRequestDTO request);
+    List<EstoqueResponseDTO> listarTodos();
     List<EstoqueResponseDTO> getExemplaresDisponiveis(String livroIsbn);
     EstoqueResponseDTO getExemplar(Long id);
     EstoqueResponseDTO atualizarDisponibilidadeExemplar(AtualizarEstoqueResquestDTO request);

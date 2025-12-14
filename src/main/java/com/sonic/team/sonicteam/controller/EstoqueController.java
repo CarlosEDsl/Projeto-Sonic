@@ -25,6 +25,12 @@ public class EstoqueController {
         return ResponseEntity.status(HttpStatus.CREATED).body(novoExemplar);
     }
 
+    @GetMapping("")
+    public ResponseEntity<List<EstoqueResponseDTO>> listarTodos() {
+        var exemplares = estoqueService.listarTodos();
+        return ResponseEntity.ok(exemplares);
+    }
+
     @GetMapping("/disponiveis")
     public ResponseEntity<List<EstoqueResponseDTO>> getExemplaresDisponiveis(@RequestParam(required = false) String livroIsbn) {
         var exemplaresDisponiveis = estoqueService.getExemplaresDisponiveis(livroIsbn);
