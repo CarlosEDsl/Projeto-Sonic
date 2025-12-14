@@ -1,5 +1,6 @@
 package com.sonic.team.sonicteam.service.emprestimo;
 
+import com.sonic.team.sonicteam.exception.EmprestimoInvalido;
 import com.sonic.team.sonicteam.model.DTO.Emprestimo.EmprestimoRequestDTO;
 import com.sonic.team.sonicteam.model.DTO.Estoque.AtualizarEstoqueResquestDTO;
 import com.sonic.team.sonicteam.model.Emprestimo;
@@ -131,6 +132,22 @@ class EmprestimoServiceTest {
         emprestimoService.criarEmprestimo(request);
 
         verify(estoqueService).pegarUmExemplarDisponivel("978-3-16-148410-0");
+    }
+
+    @Test
+    void criarEmprestimo_DeveLancarExcecao_QuandoBibliotecarioTentaCriarEmprestimo() {
+        EmprestimoRequestDTO request = new EmprestimoRequestDTO("12345678901", "978-3-16-148410-0");
+        
+        when(usuarioService.pegarUsuarioPorCPF("12345678901")).thenReturn(usuario);
+        when(usuario.getPoliticaEmprestimo()).thenReturn(politicaEmprestimo);
+        doThrow(new EmprestimoInvalido("Este tipo de usuário não pode realizar empréstimos"))
+            .when(emprestimoValidator).validarEmprestimo(usuario, politicaEmprestimo);
+
+        assertThrows(EmprestimoInvalido.class, () -> emprestimoService.criarEmprestimo(request));
+        
+        verify(emprestimoValidator).validarEmprestimo(usuario, politicaEmprestimo);
+        verify(estoqueService, never()).pegarUmExemplarDisponivel(anyString());
+        verify(emprestimoRepository, never()).save(any());
     }
 
     // ==================== TESTES buscarEmprestimoPorId ====================
