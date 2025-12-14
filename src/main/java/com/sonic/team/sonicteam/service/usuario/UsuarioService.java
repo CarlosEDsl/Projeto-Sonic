@@ -166,6 +166,7 @@ public class UsuarioService implements IUsuarioService, IUsuarioEmprestimoServic
     }
 
     @Transactional
+    @Override
     public UsuarioResponseDTO reativar(String cpf) {
         Usuario usuario = buscarUsuarioPorCpfNormalizado(cpf);
         Usuario atualizado = alterarStatus(usuario, StatusUsuario.ATIVO, ConstantesUsuario.USUARIO_JA_ATIVO);
