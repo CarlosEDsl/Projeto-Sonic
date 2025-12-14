@@ -47,6 +47,11 @@ public class EstoqueService implements IEstoqueService, IEstoqueEmprestimoServic
     }
 
     @Override
+    public List<EstoqueResponseDTO> listarTodos() {
+        return estoqueMapper.paraListaResponse(estoqueRepository.findAll());
+    }
+
+    @Override
     public List<EstoqueResponseDTO> getExemplaresDisponiveis(String livroIsbn) {
         if (livroIsbn == null || livroIsbn.isBlank()) {
             return estoqueMapper.paraListaResponse(
@@ -99,6 +104,9 @@ public class EstoqueService implements IEstoqueService, IEstoqueEmprestimoServic
     public Estoque pegarUmExemplarDisponivel(String livroISBN) {
         try {
             Estoque estoque = this.estoqueRepository.getFirstByLivroIsbnAndDisponivelIsTrue(livroISBN);
+            if (estoque == null) {
+                throw new ExemplarNaoEstaDisponivelException(0L);
+            }
             if (estoque.getDisponivel()) {
                 this.atualizarDisponibilidadeExemplar(new AtualizarEstoqueResquestDTO(estoque.getId(), false));
                 return estoque;

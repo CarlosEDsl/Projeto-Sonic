@@ -65,8 +65,8 @@ class UsuarioMapperTest {
         assertNotNull(resultado);
         assertEquals(1L, resultado.getId());
         assertEquals("ATIVO", resultado.getStatus());
-        assertEquals("Graduação", resultado.getCategoriaNome());
-        assertEquals("Engenharia de Software", resultado.getCursoNome());
+        assertEquals("Graduação", resultado.getCategoria());
+        assertEquals("Engenharia de Software", resultado.getCurso());
         assertEquals("ALUNO", resultado.getTipo());
     }
 
@@ -122,22 +122,22 @@ class UsuarioMapperTest {
     }
 
     @Test
-    void toResponseDTO_DeveSetarCategoriaNomeCorretamente() {
+    void toResponseDTO_DeveSetarCategoriaCorretamente() {
         UsuarioResponseDTO dtoMock = new UsuarioResponseDTO();
         when(modelMapper.map(aluno, UsuarioResponseDTO.class)).thenReturn(dtoMock);
 
         UsuarioResponseDTO resultado = usuarioMapper.toResponseDTO(aluno);
 
-        assertEquals("Graduação", resultado.getCategoriaNome());
+        assertEquals("Graduação", resultado.getCategoria());
     }
 
     @Test
-    void toResponseDTO_DeveSetarCursoNomeCorretamente() {
+    void toResponseDTO_DeveSetarCursoCorretamente() {
         UsuarioResponseDTO dtoMock = new UsuarioResponseDTO();
         when(modelMapper.map(aluno, UsuarioResponseDTO.class)).thenReturn(dtoMock);
 
         UsuarioResponseDTO resultado = usuarioMapper.toResponseDTO(aluno);
 
-        assertEquals("Engenharia de Software", resultado.getCursoNome());
+        assertEquals("Engenharia de Software", resultado.getCurso());
     }
 }

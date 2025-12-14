@@ -2,6 +2,7 @@ package com.sonic.team.sonicteam.service.usuario;
 
 import com.sonic.team.sonicteam.exception.ConflitoNegocioException;
 import com.sonic.team.sonicteam.exception.DadoInvalidoException;
+import com.sonic.team.sonicteam.exception.RecursoNaoEncontradoException;
 
 import com.sonic.team.sonicteam.model.Curso;
 import com.sonic.team.sonicteam.model.DTO.Usuario.CategoriaUsuario;
@@ -96,7 +97,7 @@ public class UsuarioService implements IUsuarioService, IUsuarioEmprestimoServic
     public UsuarioResponseDTO buscarPorCpf(String cpf) {
         String cpfNormalizado = cpfUtil.normalize(cpf);
         Usuario usuario = usuarioRepository.findByCpf(cpfNormalizado)
-                .orElseThrow(() -> new DadoInvalidoException(ConstantesUsuario.USUARIO_NAO_ENCONTRADO));
+                .orElseThrow(() -> new RecursoNaoEncontradoException(ConstantesUsuario.USUARIO_NAO_ENCONTRADO));
         return usuarioMapper.toResponseDTO(usuario);
     }
 
@@ -191,7 +192,7 @@ public class UsuarioService implements IUsuarioService, IUsuarioEmprestimoServic
     private Usuario buscarUsuarioPorCpfNormalizado(String cpf) {
         String cpfNormalizado = cpfUtil.normalize(cpf);
         return usuarioRepository.findByCpf(cpfNormalizado)
-                .orElseThrow(() -> new DadoInvalidoException(ConstantesUsuario.USUARIO_NAO_ENCONTRADO));
+                .orElseThrow(() -> new RecursoNaoEncontradoException(ConstantesUsuario.USUARIO_NAO_ENCONTRADO));
     }
 
     private Usuario alterarStatus(Usuario usuario, StatusUsuario novoStatus, String mensagemJaNoStatus) {
