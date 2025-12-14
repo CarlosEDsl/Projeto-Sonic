@@ -248,6 +248,19 @@ class EmprestimoServiceTest {
         verify(emprestimoRepository).save(emprestimo);
     }
 
+    @Test
+    void devolverEmprestimo_DeveLancarExcecao_QuandoEmprestimoNaoEncontrado() {
+        when(emprestimoRepository.findById(999L)).thenReturn(Optional.empty());
+
+        assertThrows(
+            com.sonic.team.sonicteam.exception.RecursoNaoEncontradoException.class,
+            () -> emprestimoService.devolverEmprestimo(999L)
+        );
+        
+        verify(emprestimoRepository, never()).save(any(Emprestimo.class));
+        verify(estoqueService, never()).atualizarDisponibilidadeExemplar(any());
+    }
+
     // ==================== TESTES contarEmprestimosAtivosPorUsuario ====================
 
     @Test

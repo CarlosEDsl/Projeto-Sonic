@@ -1,5 +1,6 @@
 package com.sonic.team.sonicteam.service.emprestimo;
 
+import com.sonic.team.sonicteam.exception.RecursoNaoEncontradoException;
 import com.sonic.team.sonicteam.model.DTO.Emprestimo.EmprestimoRequestDTO;
 import com.sonic.team.sonicteam.model.DTO.Estoque.AtualizarEstoqueResquestDTO;
 import com.sonic.team.sonicteam.model.Emprestimo;
@@ -62,6 +63,11 @@ public class EmprestimoService implements IEmprestimoService {
     @Transactional
     public Emprestimo devolverEmprestimo(Long id) {
         Emprestimo emprestimo = this.buscarEmprestimoPorId(id);
+        
+        if (emprestimo == null) {
+            throw new RecursoNaoEncontradoException("Emprestimo não encontrado com o id " + id);
+        }
+        
         emprestimo.setDataEntrega(LocalDateTime.now());
 
         this.estoqueService.atualizarDisponibilidadeExemplar(
