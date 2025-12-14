@@ -158,6 +158,7 @@ public class UsuarioService implements IUsuarioService, IUsuarioEmprestimoServic
     }
 
     @Transactional
+    @Override
     public UsuarioResponseDTO suspender(String cpf, String motivo) {
         Usuario usuario = buscarUsuarioPorCpfNormalizado(cpf);
         Usuario atualizado = alterarStatus(usuario, StatusUsuario.SUSPENSO, ConstantesUsuario.USUARIO_JA_SUSPENSO);
