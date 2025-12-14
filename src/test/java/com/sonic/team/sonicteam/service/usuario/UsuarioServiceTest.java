@@ -87,8 +87,8 @@ class UsuarioServiceTest {
         responseDTO.setCpf("12345678901");
         responseDTO.setEmail("joao@email.com");
         responseDTO.setStatus("ATIVO");
-        responseDTO.setCategoriaNome("Graduação");
-        responseDTO.setCursoNome("Engenharia");
+        responseDTO.setCategoria("Graduação");
+        responseDTO.setCurso("Engenharia");
         responseDTO.setTipo("ALUNO");
 
         categoria = new CategoriaUsuario(1L, "Graduação");
@@ -503,7 +503,7 @@ class UsuarioServiceTest {
 
         assertNotNull(resultado);
         assertEquals(1, resultado.getTotalElements());
-        assertEquals("Graduação", resultado.getContent().get(0).getCategoriaNome());
+        assertEquals("Graduação", resultado.getContent().get(0).getCategoria());
     }
 
     @Test
@@ -520,7 +520,7 @@ class UsuarioServiceTest {
 
         assertNotNull(resultado);
         assertEquals(1, resultado.getTotalElements());
-        assertEquals("Engenharia", resultado.getContent().get(0).getCursoNome());
+        assertEquals("Engenharia", resultado.getContent().get(0).getCurso());
     }
 
     @Test

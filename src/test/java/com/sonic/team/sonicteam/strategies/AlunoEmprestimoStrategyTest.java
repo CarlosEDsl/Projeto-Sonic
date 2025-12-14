@@ -1,5 +1,6 @@
 package com.sonic.team.sonicteam.strategies;
 
+import com.sonic.team.sonicteam.model.Curso;
 import com.sonic.team.sonicteam.model.DTO.Usuario.CategoriaUsuario;
 import com.sonic.team.sonicteam.model.Emprestimo;
 import com.sonic.team.sonicteam.model.Estoque;
@@ -26,7 +27,8 @@ class AlunoEmprestimoStrategyTest {
         aluno.setId(1L);
         aluno.setNome("João Silva");
         aluno.setCpf("12345678901");
-        aluno.setCategoria(new CategoriaUsuario(1L, "COMPUTACAO"));
+        aluno.setCategoria(new CategoriaUsuario(1L, "ALUNO"));
+        aluno.setCurso(new Curso(1L, "COMPUTACAO")); // Curso determina a área para o prazo estendido
 
         strategy = new AlunoEmprestimoStrategy(aluno);
 
@@ -78,7 +80,7 @@ class AlunoEmprestimoStrategyTest {
     @Test
     void calcularPrazo_DeveRetornar30Dias_QuandoLivroDaAreaDoCurso() {
         livro.setCategoriaLivro(CategoriaLivro.COMPUTACAO);
-        aluno.setCategoria(new CategoriaUsuario(1L, "COMPUTACAO"));
+        aluno.setCurso(new Curso(1L, "COMPUTACAO")); // Curso igual à categoria do livro = 30 dias
 
         LocalDateTime antes = LocalDateTime.now();
         LocalDateTime prazo = strategy.calcularPrazo(livro);
@@ -91,8 +93,8 @@ class AlunoEmprestimoStrategyTest {
 
     @Test
     void calcularPrazo_DeveRetornar15Dias_QuandoLivroForaDeArea() {
-        livro.setCategoriaLivro(CategoriaLivro.ROMANCE);
-        aluno.setCategoria(new CategoriaUsuario(1L, "COMPUTACAO"));
+        livro.setCategoriaLivro(CategoriaLivro.ROMANCE); // Livro de ROMANCE
+        aluno.setCurso(new Curso(1L, "COMPUTACAO")); // Curso é COMPUTACAO (diferente)
 
         LocalDateTime antes = LocalDateTime.now();
         LocalDateTime prazo = strategy.calcularPrazo(livro);
@@ -105,8 +107,8 @@ class AlunoEmprestimoStrategyTest {
 
     @Test
     void calcularPrazo_DeveRetornar15Dias_QuandoCategoriaDiferente() {
-        livro.setCategoriaLivro(CategoriaLivro.LETRAS);
-        aluno.setCategoria(new CategoriaUsuario(1L, "GESTAO"));
+        livro.setCategoriaLivro(CategoriaLivro.LETRAS); // Livro de LETRAS
+        aluno.setCurso(new Curso(1L, "GESTAO")); // Curso é GESTAO (diferente)
 
         LocalDateTime prazo = strategy.calcularPrazo(livro);
 
@@ -141,7 +143,7 @@ class AlunoEmprestimoStrategyTest {
     @Test
     void pegarEmprestimo_DeveSetarDataDevolucaoCorreta() {
         livro.setCategoriaLivro(CategoriaLivro.COMPUTACAO);
-        aluno.setCategoria(new CategoriaUsuario(1L, "COMPUTACAO"));
+        aluno.setCurso(new Curso(1L, "COMPUTACAO")); // Curso igual à categoria do livro
 
         Emprestimo emprestimo = strategy.pegarEmprestimo(estoque);
 

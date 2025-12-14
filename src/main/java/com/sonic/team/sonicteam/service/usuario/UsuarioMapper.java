@@ -17,8 +17,8 @@ public class UsuarioMapper {
         UsuarioResponseDTO dto = modelMapper.map(usuario, UsuarioResponseDTO.class);
         dto.setId(usuario.getId());
         dto.setStatus(usuario.getStatus().name());
-        dto.setCategoriaNome(usuario.getCategoria().getNome());
-        dto.setCursoNome(usuario.getCurso().getNome());
+        dto.setCategoria(usuario.getCategoria().getNome());
+        dto.setCurso(usuario.getCurso().getNome());
         dto.setTipo(usuario.getTipoUsuario().getValor());
         return dto;
     }

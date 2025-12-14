@@ -53,8 +53,8 @@ class UsuarioControllerTest {
         responseDTO.setCpf("52998224725");
         responseDTO.setEmail("joao@email.com");
         responseDTO.setStatus("ATIVO");
-        responseDTO.setCategoriaNome("Graduação");
-        responseDTO.setCursoNome("Engenharia");
+        responseDTO.setCategoria("Graduação");
+        responseDTO.setCurso("Engenharia");
         responseDTO.setTipo("ALUNO");
     }
 

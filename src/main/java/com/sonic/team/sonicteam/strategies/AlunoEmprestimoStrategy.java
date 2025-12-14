@@ -22,7 +22,9 @@ public class AlunoEmprestimoStrategy extends BaseStrategy<Aluno> {
     }
 
     private boolean isLivroDaArea(Livro livro) {
-        return getEntity().getCategoria().getNome().equals(livro.getCategoriaLivro().toString());
+        // Compara o CURSO do aluno com a CATEGORIA do livro
+        // Ex: Aluno de "COMPUTACAO" pegando livro de "COMPUTACAO" tem 30 dias
+        return getEntity().getCurso().getNome().equalsIgnoreCase(livro.getCategoriaLivro().toString());
     }
 }
 
