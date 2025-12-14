@@ -1,5 +1,6 @@
 package com.sonic.team.sonicteam.service.emprestimo;
 
+import com.sonic.team.sonicteam.exception.RecursoNaoEncontradoException;
 import com.sonic.team.sonicteam.model.DTO.Emprestimo.EmprestimoRequestDTO;
 import com.sonic.team.sonicteam.model.DTO.Estoque.AtualizarEstoqueResquestDTO;
 import com.sonic.team.sonicteam.model.Emprestimo;
@@ -151,7 +152,7 @@ class EmprestimoServiceTest {
         when(emprestimoRepository.findById(999L)).thenReturn(Optional.empty());
 
         assertThrows(
-            com.sonic.team.sonicteam.exception.RecursoNaoEncontradoException.class,
+            RecursoNaoEncontradoException.class,
             () -> emprestimoService.buscarEmprestimoPorId(999L)
         );
         
@@ -255,7 +256,7 @@ class EmprestimoServiceTest {
         when(emprestimoRepository.findById(999L)).thenReturn(Optional.empty());
 
         assertThrows(
-            com.sonic.team.sonicteam.exception.RecursoNaoEncontradoException.class,
+            RecursoNaoEncontradoException.class,
             () -> emprestimoService.devolverEmprestimo(999L)
         );
         
