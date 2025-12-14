@@ -3,7 +3,7 @@ package com.sonic.team.sonicteam.controller;
 import com.sonic.team.sonicteam.model.DTO.Usuario.SuspensaoRequestDTO;
 import com.sonic.team.sonicteam.model.DTO.Usuario.UsuarioRequestDTO;
 import com.sonic.team.sonicteam.model.DTO.Usuario.UsuarioResponseDTO;
-import com.sonic.team.sonicteam.service.usuario.UsuarioService;
+import com.sonic.team.sonicteam.service.usuario.IUsuarioService;
 import com.sonic.team.sonicteam.util.ConstantesUsuario;
 import com.sonic.team.sonicteam.util.CpfUtil;
 import jakarta.validation.Valid;
@@ -20,9 +20,10 @@ import org.springframework.web.bind.annotation.*;
 @RequestMapping("/usuarios")
 @Validated
 public class UsuarioController {
-    private final UsuarioService usuarioService;
+    
+    private final IUsuarioService usuarioService;
 
-    public UsuarioController(UsuarioService usuarioService) {
+    public UsuarioController(IUsuarioService usuarioService) {
         this.usuarioService = usuarioService;
     }
 

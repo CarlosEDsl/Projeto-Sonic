@@ -3,25 +3,30 @@ package com.sonic.team.sonicteam.util;
 import com.sonic.team.sonicteam.model.DTO.Estoque.EstoqueResponseDTO;
 import com.sonic.team.sonicteam.model.Estoque;
 import com.sonic.team.sonicteam.model.Livro;
+import org.springframework.stereotype.Component;
 
-import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
+@Component
 public class EstoqueMapper {
-    public static Estoque ToEntity(EstoqueResponseDTO estoqueResponseDTO, Livro livro) {
-        return new Estoque(estoqueResponseDTO.id(), livro, estoqueResponseDTO.disponivel());
+    
+    public Estoque paraEntidade(EstoqueResponseDTO dto, Livro livro) {
+        return new Estoque(dto.id(), livro, dto.disponivel());
     }
 
-    public static EstoqueResponseDTO ToResponseDTO(Estoque estoque) {
-        return new EstoqueResponseDTO(estoque.getId(), estoque.getLivro().getIsbn(), estoque.getDisponivel());
+    public EstoqueResponseDTO paraResponse(Estoque estoque) {
+        return new EstoqueResponseDTO(
+            estoque.getId(), 
+            estoque.getLivro().getIsbn(), 
+            estoque.getDisponivel()
+        );
     }
 
-    public static List<EstoqueResponseDTO> ToListResponseDTO(List<Estoque> estoques) {
-        List<EstoqueResponseDTO> list = new ArrayList<>();
-        for(Estoque estoque : estoques) {
-            var estoqueResponseDTO = ToResponseDTO(estoque);
-            list.add(estoqueResponseDTO);
-        }
-        return list;
+    public List<EstoqueResponseDTO> paraListaResponse(List<Estoque> estoques) {
+        return estoques.stream()
+                .map(this::paraResponse)
+                .collect(Collectors.toList());
     }
 }
+

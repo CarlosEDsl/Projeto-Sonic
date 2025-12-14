@@ -7,7 +7,7 @@ import com.sonic.team.sonicteam.model.usuario.Bibliotecario;
 import com.sonic.team.sonicteam.model.usuario.Professor;
 import com.sonic.team.sonicteam.model.usuario.TipoUsuario;
 import com.sonic.team.sonicteam.model.usuario.Usuario;
-import com.sonic.team.sonicteam.util.MensagensUsuario;
+import com.sonic.team.sonicteam.util.ConstantesUsuario;
 import org.modelmapper.ModelMapper;
 import org.springframework.stereotype.Component;
 
@@ -25,7 +25,7 @@ public class UsuarioFactory {
             tipo = TipoUsuario.fromString(dto.getTipo());
         } catch (IllegalArgumentException e) {
             throw new DadoInvalidoException(
-                String.format(MensagensUsuario.TIPO_USUARIO_INVALIDO, dto.getTipo())
+                String.format(ConstantesUsuario.TIPO_USUARIO_INVALIDO, dto.getTipo())
             );
         }
 

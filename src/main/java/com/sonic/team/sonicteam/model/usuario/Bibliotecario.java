@@ -1,7 +1,7 @@
 package com.sonic.team.sonicteam.model.usuario;
 
-import com.sonic.team.sonicteam.strategies.BibliotecarioEmprestimoStrategy;
-import com.sonic.team.sonicteam.strategies.EmprestimoStrategy;
+import com.sonic.team.sonicteam.strategies.BibliotecarioPolitica;
+import com.sonic.team.sonicteam.strategies.PoliticaEmprestimo;
 import jakarta.persistence.DiscriminatorValue;
 import jakarta.persistence.Entity;
 
@@ -10,7 +10,12 @@ import jakarta.persistence.Entity;
 public class Bibliotecario extends Usuario {
 
     @Override
-    public EmprestimoStrategy getEmprestimoStrategy() {
-        return new BibliotecarioEmprestimoStrategy(this);
+    public PoliticaEmprestimo getPoliticaEmprestimo() {
+        return new BibliotecarioPolitica(this);
+    }
+    
+    @Override
+    public TipoUsuario getTipoUsuario() {
+        return TipoUsuario.BIBLIOTECARIO;
     }
 }
