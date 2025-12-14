@@ -4,6 +4,7 @@ import com.sonic.team.sonicteam.exception.ConflitoNegocioException;
 import com.sonic.team.sonicteam.exception.DadoInvalidoException;
 import com.sonic.team.sonicteam.model.Curso;
 import com.sonic.team.sonicteam.model.DTO.Usuario.CategoriaUsuario;
+import com.sonic.team.sonicteam.model.DTO.Usuario.FiltroUsuarioDTO;
 import com.sonic.team.sonicteam.model.DTO.Usuario.UsuarioRequestDTO;
 import com.sonic.team.sonicteam.model.DTO.Usuario.UsuarioResponseDTO;
 import com.sonic.team.sonicteam.model.usuario.Aluno;
@@ -25,6 +26,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.domain.Specification;
 
 import java.util.Collections;
 import java.util.List;
@@ -32,6 +34,7 @@ import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.*;
 
 @SuppressWarnings("null")
@@ -415,5 +418,180 @@ class UsuarioServiceTest {
         );
 
         assertEquals(ConstantesUsuario.USUARIO_JA_INATIVO, exception.getMessage());
+    }
+
+    // ==================== TESTES buscarComFiltros ====================
+
+    @Test
+    void buscarComFiltros_DeveRetornarUsuarios_QuandoFiltroVazio() {
+        FiltroUsuarioDTO filtro = new FiltroUsuarioDTO();
+        Pageable pageable = PageRequest.of(0, 10);
+        Page<Usuario> pageUsuarios = new PageImpl<>(List.of(usuario));
+        
+        when(usuarioRepository.findAll(any(Specification.class), eq(pageable))).thenReturn(pageUsuarios);
+        when(usuarioMapper.toResponseDTO(usuario)).thenReturn(responseDTO);
+
+        Page<UsuarioResponseDTO> resultado = usuarioService.buscarComFiltros(filtro, pageable);
+
+        assertNotNull(resultado);
+        assertEquals(1, resultado.getTotalElements());
+        verify(usuarioRepository).findAll(any(Specification.class), eq(pageable));
+    }
+
+    @Test
+    void buscarComFiltros_DeveRetornarUsuarios_QuandoFiltrarPorNome() {
+        FiltroUsuarioDTO filtro = new FiltroUsuarioDTO();
+        filtro.setNome("João");
+        Pageable pageable = PageRequest.of(0, 10);
+        Page<Usuario> pageUsuarios = new PageImpl<>(List.of(usuario));
+        
+        when(usuarioRepository.findAll(any(Specification.class), eq(pageable))).thenReturn(pageUsuarios);
+        when(usuarioMapper.toResponseDTO(usuario)).thenReturn(responseDTO);
+
+        Page<UsuarioResponseDTO> resultado = usuarioService.buscarComFiltros(filtro, pageable);
+
+        assertNotNull(resultado);
+        assertEquals(1, resultado.getTotalElements());
+        assertEquals("João Silva", resultado.getContent().get(0).getNome());
+    }
+
+    @Test
+    void buscarComFiltros_DeveRetornarUsuarios_QuandoFiltrarPorStatus() {
+        FiltroUsuarioDTO filtro = new FiltroUsuarioDTO();
+        filtro.setStatus("ATIVO");
+        Pageable pageable = PageRequest.of(0, 10);
+        Page<Usuario> pageUsuarios = new PageImpl<>(List.of(usuario));
+        
+        when(usuarioRepository.findAll(any(Specification.class), eq(pageable))).thenReturn(pageUsuarios);
+        when(usuarioMapper.toResponseDTO(usuario)).thenReturn(responseDTO);
+
+        Page<UsuarioResponseDTO> resultado = usuarioService.buscarComFiltros(filtro, pageable);
+
+        assertNotNull(resultado);
+        assertEquals(1, resultado.getTotalElements());
+        assertEquals("ATIVO", resultado.getContent().get(0).getStatus());
+    }
+
+    @Test
+    void buscarComFiltros_DeveRetornarUsuarios_QuandoFiltrarPorTipo() {
+        FiltroUsuarioDTO filtro = new FiltroUsuarioDTO();
+        filtro.setTipo("ALUNO");
+        Pageable pageable = PageRequest.of(0, 10);
+        Page<Usuario> pageUsuarios = new PageImpl<>(List.of(usuario));
+        
+        when(usuarioRepository.findAll(any(Specification.class), eq(pageable))).thenReturn(pageUsuarios);
+        when(usuarioMapper.toResponseDTO(usuario)).thenReturn(responseDTO);
+
+        Page<UsuarioResponseDTO> resultado = usuarioService.buscarComFiltros(filtro, pageable);
+
+        assertNotNull(resultado);
+        assertEquals(1, resultado.getTotalElements());
+        assertEquals("ALUNO", resultado.getContent().get(0).getTipo());
+    }
+
+    @Test
+    void buscarComFiltros_DeveRetornarUsuarios_QuandoFiltrarPorCategoriaId() {
+        FiltroUsuarioDTO filtro = new FiltroUsuarioDTO();
+        filtro.setCategoriaId(1L);
+        Pageable pageable = PageRequest.of(0, 10);
+        Page<Usuario> pageUsuarios = new PageImpl<>(List.of(usuario));
+        
+        when(usuarioRepository.findAll(any(Specification.class), eq(pageable))).thenReturn(pageUsuarios);
+        when(usuarioMapper.toResponseDTO(usuario)).thenReturn(responseDTO);
+
+        Page<UsuarioResponseDTO> resultado = usuarioService.buscarComFiltros(filtro, pageable);
+
+        assertNotNull(resultado);
+        assertEquals(1, resultado.getTotalElements());
+        assertEquals("Graduação", resultado.getContent().get(0).getCategoriaNome());
+    }
+
+    @Test
+    void buscarComFiltros_DeveRetornarUsuarios_QuandoFiltrarPorCursoId() {
+        FiltroUsuarioDTO filtro = new FiltroUsuarioDTO();
+        filtro.setCursoId(1L);
+        Pageable pageable = PageRequest.of(0, 10);
+        Page<Usuario> pageUsuarios = new PageImpl<>(List.of(usuario));
+        
+        when(usuarioRepository.findAll(any(Specification.class), eq(pageable))).thenReturn(pageUsuarios);
+        when(usuarioMapper.toResponseDTO(usuario)).thenReturn(responseDTO);
+
+        Page<UsuarioResponseDTO> resultado = usuarioService.buscarComFiltros(filtro, pageable);
+
+        assertNotNull(resultado);
+        assertEquals(1, resultado.getTotalElements());
+        assertEquals("Engenharia", resultado.getContent().get(0).getCursoNome());
+    }
+
+    @Test
+    void buscarComFiltros_DeveRetornarUsuarios_QuandoFiltrarComTodosCampos() {
+        FiltroUsuarioDTO filtro = new FiltroUsuarioDTO();
+        filtro.setNome("João");
+        filtro.setStatus("ATIVO");
+        filtro.setTipo("ALUNO");
+        filtro.setCategoriaId(1L);
+        filtro.setCursoId(1L);
+        Pageable pageable = PageRequest.of(0, 10);
+        Page<Usuario> pageUsuarios = new PageImpl<>(List.of(usuario));
+        
+        when(usuarioRepository.findAll(any(Specification.class), eq(pageable))).thenReturn(pageUsuarios);
+        when(usuarioMapper.toResponseDTO(usuario)).thenReturn(responseDTO);
+
+        Page<UsuarioResponseDTO> resultado = usuarioService.buscarComFiltros(filtro, pageable);
+
+        assertNotNull(resultado);
+        assertEquals(1, resultado.getTotalElements());
+        UsuarioResponseDTO dto = resultado.getContent().get(0);
+        assertEquals("João Silva", dto.getNome());
+        assertEquals("ATIVO", dto.getStatus());
+        assertEquals("ALUNO", dto.getTipo());
+    }
+
+    @Test
+    void buscarComFiltros_DeveRetornarPaginaVazia_QuandoNaoEncontrar() {
+        FiltroUsuarioDTO filtro = new FiltroUsuarioDTO();
+        filtro.setNome("Usuário que não existe");
+        Pageable pageable = PageRequest.of(0, 10);
+        Page<Usuario> paginaVazia = new PageImpl<>(Collections.emptyList());
+        
+        when(usuarioRepository.findAll(any(Specification.class), eq(pageable))).thenReturn(paginaVazia);
+
+        Page<UsuarioResponseDTO> resultado = usuarioService.buscarComFiltros(filtro, pageable);
+
+        assertNotNull(resultado);
+        assertTrue(resultado.isEmpty());
+        assertEquals(0, resultado.getTotalElements());
+    }
+
+    @Test
+    void buscarComFiltros_DeveIgnorar_QuandoStatusInvalido() {
+        FiltroUsuarioDTO filtro = new FiltroUsuarioDTO();
+        filtro.setStatus("STATUS_INVALIDO");
+        Pageable pageable = PageRequest.of(0, 10);
+        Page<Usuario> pageUsuarios = new PageImpl<>(List.of(usuario));
+        
+        when(usuarioRepository.findAll(any(Specification.class), eq(pageable))).thenReturn(pageUsuarios);
+        when(usuarioMapper.toResponseDTO(usuario)).thenReturn(responseDTO);
+
+        Page<UsuarioResponseDTO> resultado = usuarioService.buscarComFiltros(filtro, pageable);
+
+        assertNotNull(resultado);
+        assertEquals(1, resultado.getTotalElements());
+    }
+
+    @Test
+    void buscarComFiltros_DeveIgnorar_QuandoTipoInvalido() {
+        FiltroUsuarioDTO filtro = new FiltroUsuarioDTO();
+        filtro.setTipo("TIPO_INVALIDO");
+        Pageable pageable = PageRequest.of(0, 10);
+        Page<Usuario> pageUsuarios = new PageImpl<>(List.of(usuario));
+        
+        when(usuarioRepository.findAll(any(Specification.class), eq(pageable))).thenReturn(pageUsuarios);
+        when(usuarioMapper.toResponseDTO(usuario)).thenReturn(responseDTO);
+
+        Page<UsuarioResponseDTO> resultado = usuarioService.buscarComFiltros(filtro, pageable);
+
+        assertNotNull(resultado);
+        assertEquals(1, resultado.getTotalElements());
     }
 }
