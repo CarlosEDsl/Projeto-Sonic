@@ -174,6 +174,7 @@ public class UsuarioService implements IUsuarioService, IUsuarioEmprestimoServic
     }
 
     @Transactional
+    @Override
     public UsuarioResponseDTO inativar(String cpf) {
         Usuario usuario = buscarUsuarioPorCpfNormalizado(cpf);
         Usuario atualizado = alterarStatus(usuario, StatusUsuario.INATIVO, ConstantesUsuario.USUARIO_JA_INATIVO);
