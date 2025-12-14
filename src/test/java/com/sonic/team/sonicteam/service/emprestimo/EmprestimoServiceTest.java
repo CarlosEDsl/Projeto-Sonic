@@ -147,12 +147,14 @@ class EmprestimoServiceTest {
     }
 
     @Test
-    void buscarEmprestimoPorId_DeveRetornarNull_QuandoIdNaoExistir() {
+    void buscarEmprestimoPorId_DeveLancarExcecao_QuandoIdNaoExistir() {
         when(emprestimoRepository.findById(999L)).thenReturn(Optional.empty());
 
-        Emprestimo resultado = emprestimoService.buscarEmprestimoPorId(999L);
-
-        assertNull(resultado);
+        assertThrows(
+            com.sonic.team.sonicteam.exception.RecursoNaoEncontradoException.class,
+            () -> emprestimoService.buscarEmprestimoPorId(999L)
+        );
+        
         verify(emprestimoRepository).findById(999L);
     }
 

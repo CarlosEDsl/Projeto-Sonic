@@ -40,9 +40,6 @@ public class EmprestimoController {
     @GetMapping("/{id}")
     public ResponseEntity<EmprestimoResponseDTO> buscar(@PathVariable Long id) {
         Emprestimo encontrado = emprestimoService.buscarEmprestimoPorId(id);
-        if (encontrado == null) {
-            return ResponseEntity.notFound().build();
-        }
         return ResponseEntity.ok(emprestimoMapper.paraResponse(encontrado));
     }
 

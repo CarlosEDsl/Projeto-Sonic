@@ -52,7 +52,8 @@ public class EmprestimoService implements IEmprestimoService {
 
     @Transactional(readOnly = true)
     public Emprestimo buscarEmprestimoPorId(Long id) {
-        return this.emprestimoRepository.findById(id).orElse(null);
+        return this.emprestimoRepository.findById(id)
+                .orElseThrow(() -> new RecursoNaoEncontradoException("Emprestimo não encontrado com o id " + id));
     }
 
     @Transactional(readOnly = true)
@@ -63,11 +64,6 @@ public class EmprestimoService implements IEmprestimoService {
     @Transactional
     public Emprestimo devolverEmprestimo(Long id) {
         Emprestimo emprestimo = this.buscarEmprestimoPorId(id);
-        
-        if (emprestimo == null) {
-            throw new RecursoNaoEncontradoException("Emprestimo não encontrado com o id " + id);
-        }
-        
         emprestimo.setDataEntrega(LocalDateTime.now());
 
         this.estoqueService.atualizarDisponibilidadeExemplar(
