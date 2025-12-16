@@ -34,15 +34,38 @@ Requisitos: Java 17+ e Maven.
 
 ## SOLID aplicado no projeto
 
-- SRP (Single Responsibility Principle): aqui a ideia é simples — cada classe faz uma coisa. Os controladores cuidam das rotas, os serviços da lógica, os repositórios do banco, os validators das checagens e os mappers das conversões. Isso ajuda a entender e arrumar partes do sistema sem bagunçar o resto.
+### **SRP — Single Responsibility Principle (Responsabilidade Única)**
+A estrutura do projeto está organizada por **camadas e responsabilidades bem definidas**, evitando “classes faz-tudo”:
+- **Controllers (`controller/`)** expõem a API REST e lidam com HTTP (rotas, parâmetros, status codes).
+- **Services (`service/`)** concentram as **regras de negócio e orquestração** dos casos de uso (ex.: criação/devolução de empréstimo, manutenção de usuários, estoque e livros).
+- **Repositories (`repository/`)** isolam o acesso ao banco via Spring Data JPA.
+- **Validators (`validation/`)** centralizam validações e checagens específicas (ex.: disponibilidade de exemplar, existência de livro).
+- **DTOs (`model/DTO/`)** separam o modelo de entrada/saída da API do modelo de persistência.
+- **Jobs (`jobs/`)** encapsulam rotinas agendadas (ex.: verificação automática de usuários irregulares), sem misturar isso com controllers.
+- **Exception handling (`exception/`)** fica centralizado com um handler global e exceções de domínio, mantendo o fluxo de erro consistente.
 
-- OCP (Open/Closed Principle): o código foi pensado pra crescer sem precisar reescrever tudo. Um exemplo prático é como as regras de empréstimo mudam conforme o tipo de usuário: cada comportamento fica em uma "estratégia" separada. Quer adicionar um tipo novo? Cria a estratégia e pronto — não precisa mexer na lógica que orquestra o empréstimo.
+Resultado: cada parte muda por um motivo específico (rota, regra, persistência, validação, etc.), o que reduz acoplamento e facilita manutenção.
+### **OCP — Open/Closed Principle (Aberto/Fechado)**
+O projeto está preparado para **crescer adicionando comportamento sem reescrever a orquestração central**, especialmente no domínio de empréstimos:
+- As variações de regra por perfil/tipo de usuário são isoladas em **estratégias** (pacote `strategies/`).
+- O fluxo principal do empréstimo fica no serviço, que **seleciona a estratégia apropriada** a partir do usuário e aplica as regras (prazo/limite/condições).
 
-- LSP (Liskov Substitution Principle): na prática, isso significa que objetos especializados podem ser usados onde o genérico é esperado sem causar erros. No projeto, o serviço de empréstimo trata usuários de forma genérica porque cada tipo implementa a mesma interface/contrato (ou comportamento esperado).
+Assim, para incluir um novo tipo de usuário/regra de empréstimo, a tendência é **criar uma nova Strategy** (e integrar na forma como o usuário seleciona a estratégia), mantendo o “motor” do empréstimo estável.
+### **LSP — Liskov Substitution Principle (Substituição de Liskov)**
+As estratégias de empréstimo seguem um **contrato comum** (interface/abstração de Strategy). Isso permite que o serviço de empréstimo trate qualquer estratégia de forma uniforme:
+- O serviço não precisa saber se é aluno/professor/bibliotecário; ele só depende do comportamento definido no contrato.
+- Qualquer implementação nova deve respeitar as expectativas do contrato (ex.: gerar empréstimo válido, devolver limites/prazos coerentes), sem quebrar o fluxo existente.
 
-- ISP (Interface Segregation Principle): preferimos interfaces pequenas e específicas. Em vez de uma classe gigante com vários métodos misturados, temos interfaces focadas — cada consumidor depende só do que precisa, sem métodos inúteis.
+Na prática, isso mantém o código extensível sem “ifs” espalhados e sem efeitos colaterais quando um tipo específico entra no lugar do genérico.
+### **ISP — Interface Segregation Principle (Segregação de Interfaces)**
+Há uma preferência por **interfaces menores e contextuais**, evitando que uma classe dependa de métodos que não usa:
+- Ex.: interfaces específicas para o domínio de empréstimo (como serviços “recortados” para uso dentro do módulo de empréstimos), em vez de depender do serviço completo de usuário/estoque.
+- Isso reduz acoplamento entre módulos e deixa mais claro **quais operações são realmente necessárias** para cada caso de uso.
 
-- DIP (Dependency Inversion Principle): o código depende mais de abstrações (interfaces) do que de implementações. Os controladores recebem serviços por injeção, e isso facilita trocar uma implementação por um mock nos testes ou por outra versão sem mudar quem usa esse serviço.
+### **DIP — Dependency Inversion Principle (Inversão de Dependência)**
+As dependências são resolvidas principalmente por **injeção via construtor**, e várias relações são feitas **contra abstrações**:
+- Controllers dependem de **services**, e services dependem de **repositórios e contratos (interfaces)**.
+- Partes como empréstimo se apoiam em **interfaces e estratégias**, o que facilita trocar implementações, evoluir regras e testar (mocks/stubs) sem alterar quem consome.
 
 ## Documentação interativa (Swagger)
 
