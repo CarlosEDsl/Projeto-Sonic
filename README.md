@@ -312,7 +312,3 @@ Base path: /catalogos
 
 ---
 
-## Notas finais
-
-- Para schemas detalhados e testes interativos, utilize o Swagger UI em http://localhost:8090/library após subir a aplicação.
-- Em caso de dúvidas ou para novas rotas, consulte os controladores no pacote com.sonic.team.sonicteam.controller.
